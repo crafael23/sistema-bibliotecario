@@ -1,16 +1,43 @@
-import { seedData } from "~/server/db/seeding";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
+import Link from "next/link"
 
-function SeedButton({ action }: { action: () => Promise<void> }) {
-  "use client";
-  return <button onClick={action}>Seed</button>;
-}
-export default function HomePage() {
+export default function Home() {
   return (
-    <>
-      <div>
-        <h1>hello world</h1>
-        <SeedButton action={seedData} />
-      </div>
-    </>
-  );
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <Card>
+        <CardHeader>
+          <CardTitle>Gestión de Inventario</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Administra y actualiza el inventario de libros de la biblioteca.</p>
+          <Link href="/inventario" className="text-blue-600 hover:underline mt-2 inline-block">
+            Ir al Inventario
+          </Link>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Reservas de Libros</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Reserva libros por períodos de tiempo específicos.</p>
+          <Link href="/reservar" className="text-blue-600 hover:underline mt-2 inline-block">
+            Reservar un Libro
+          </Link>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Perfil de Usuario</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Ver y gestionar tu perfil y reservas.</p>
+          <Link href="/perfil" className="text-blue-600 hover:underline mt-2 inline-block">
+            Ir al Perfil
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  )
 }
+

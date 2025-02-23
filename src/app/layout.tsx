@@ -1,20 +1,29 @@
-import "~/styles/globals.css";
+import type React from "react";
+import "../styles/globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import Navigation from "~/components/navigation";
 
-import { GeistSans } from "geist/font/sans";
-import { type Metadata } from "next";
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sistema bibliotecario",
-  description: "Sistema bibliotecario multiusuario",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  title: "Sistema de Gestión de Biblioteca",
+  description: "Un sistema simple de gestión de biblioteca",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="esp" className={`${GeistSans.variable}`}>
-      <body>{children}</body>
+    <html lang="es">
+      <body className={inter.className}>
+        <div className="min-h-screen bg-gray-100">
+          <Navigation />
+          <main className="container mx-auto px-4 py-6">{children}</main>
+        </div>
+      </body>
     </html>
   );
 }
