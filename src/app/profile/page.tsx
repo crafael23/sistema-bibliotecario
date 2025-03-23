@@ -1,17 +1,35 @@
-import { Button } from "~/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
 
 // This would typically come from your database
 const userReservations = [
-  { id: 1, book: "The Great Gatsby", startDate: "2023-06-01", endDate: "2023-06-15" },
+  {
+    id: 1,
+    book: "The Great Gatsby",
+    startDate: "2023-06-01",
+    endDate: "2023-06-15",
+  },
   { id: 2, book: "1984", startDate: "2023-07-01", endDate: "2023-07-15" },
-]
+];
 
 export default function ProfilePage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">User Profile</h1>
+      <h1 className="mb-4 text-2xl font-bold">User Profile</h1>
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>John Doe</CardTitle>
@@ -21,7 +39,7 @@ export default function ProfilePage() {
           <Button>Edit Profile</Button>
         </CardContent>
       </Card>
-      <h2 className="text-xl font-semibold mb-2">Your Reservations</h2>
+      <h2 className="mb-2 text-xl font-semibold">Your Reservations</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -47,6 +65,5 @@ export default function ProfilePage() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
-

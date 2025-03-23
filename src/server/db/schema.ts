@@ -10,6 +10,7 @@ import {
   integer,
   numeric,
   varchar,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -41,10 +42,10 @@ export const estadoMultaEnum = pgEnum("estado_multa", ["pagado", "pendiente"]);
 
 // 2. Tabla de libros (Inventario)
 export const libro = createTable("libro", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey(),
+  groupId: serial("groupId"),
   nombre: varchar("nombre").notNull(),
   categoria: varchar("categoria").notNull(),
-  cantidad: integer("cantidad").notNull(),
   estado: estadoLibroEnum("estado").notNull().default("disponible"),
   creadoEn: timestamp("creado_en").defaultNow(),
 });
@@ -55,13 +56,14 @@ export const usuario = createTable("usuario", {
   clerkId: text("clerk_id").unique().notNull(),
   email: text("email").unique().notNull(),
   creadoEn: timestamp("creado_en").defaultNow(),
+  tipoDeUsuario: text("tipo_de_usuario").notNull(),
 });
 
 // 4. Tabla de reservaciones
 export const reservacion = createTable("reservacion", {
   id: serial("id").primaryKey(),
   usuarioId: text("usuario_id").references(() => usuario.id),
-  libroId: integer("libro_id").references(() => libro.id),
+  libroId: text("libro_id").references(() => libro.id),
   fechaInicio: date("fecha_inicio").notNull(),
   fechaFin: date("fecha_fin").notNull(),
   estado: estadoPrestamoEnum("estado").notNull().default("activo"),

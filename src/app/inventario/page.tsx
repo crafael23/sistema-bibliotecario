@@ -1,17 +1,42 @@
-import { Button } from "~/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
+import { Button } from "~/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
 
 // Esto normalmente vendría de tu base de datos
 const libros = [
-  { id: 1, titulo: "El Gran Gatsby", autor: "F. Scott Fitzgerald", estado: "Disponible", copias: 3 },
-  { id: 2, titulo: "Matar a un Ruiseñor", autor: "Harper Lee", estado: "Reservado", copias: 2 },
-  { id: 3, titulo: "1984", autor: "George Orwell", estado: "Prestado", copias: 1 },
-]
+  {
+    id: 1,
+    titulo: "El Gran Gatsby",
+    autor: "F. Scott Fitzgerald",
+    estado: "Disponible",
+    copias: 3,
+  },
+  {
+    id: 2,
+    titulo: "Matar a un Ruiseñor",
+    autor: "Harper Lee",
+    estado: "Reservado",
+    copias: 2,
+  },
+  {
+    id: 3,
+    titulo: "1984",
+    autor: "George Orwell",
+    estado: "Prestado",
+    copias: 1,
+  },
+];
 
 export default function InventoryPage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Gestión de Inventario</h1>
+      <h1 className="mb-4 text-2xl font-bold">Gestión de Inventario</h1>
       <Button className="mb-4">Añadir Nuevo Libro</Button>
       <Table>
         <TableHeader>
@@ -43,6 +68,5 @@ export default function InventoryPage() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
-
