@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <nav className="flex w-full items-center justify-between">
           <h1 className="text-xl font-bold">Panel de Reportes</h1>
           <h1 className="text-sm">
-            {currentDate.toLocaleDateString("en-US", {
+            {currentDate.toLocaleDateString("es-ES", {
               year: "numeric",
               month: "long",
               day: "numeric",

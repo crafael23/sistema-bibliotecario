@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import Link from "next/link";
 import SeedButton from "~/components/seed-button";
-import { seedDataLibros } from "~/server/db/seeding";
+import { seedDataLibros, seedTestData } from "~/server/db/seeding";
+import { Button } from "~/components/ui/button";
 
 export default function Home() {
   return (
@@ -50,7 +52,15 @@ export default function Home() {
           </Link>
         </CardContent>
       </Card>
-      <SeedButton action={seedDataLibros} />
+      <Link href={"/admin/reportes"}>
+        <Button>IR a pagina de reportes</Button>
+      </Link>
+      <SeedButton
+        action={async () => {
+          "use server";
+          console.log("Seeding...");
+        }}
+      />
     </div>
   );
 }

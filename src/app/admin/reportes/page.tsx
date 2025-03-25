@@ -39,7 +39,7 @@ export default function AdminPage() {
           </Card>
         </Link>
 
-        <Link href="/reportes/detallados/multas">
+        <Link href="reportes/detallados/multas">
           <Card className="h-full transition-all hover:shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export default function AdminPage() {
           </Card>
         </Link>
 
-        <Link href="/reportes/detallados/prestamos-usuario">
+        <Link href="reportes/detallados/historial">
           <Card className="h-full transition-all hover:shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -76,7 +76,7 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </Link>
-        <Link href="/reportes/detallados/prestamos-usuario">
+        <Link href="reportes/detallados/movimientos">
           <Card className="h-full transition-all hover:shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export default function AdminPage() {
           </Card>
         </Link>
 
-        <Link href="/reportes/sintetizados/tendencias">
+        <Link href="reportes/sintetizados/tendencias">
           <Card className="h-full transition-all hover:shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export default function AdminPage() {
           </Card>
         </Link>
 
-        <Link href="/reportes/sintetizados/categorias">
+        <Link href="reportes/sintetizados/categorias">
           <Card className="h-full transition-all hover:shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export default function AdminPage() {
           </Card>
         </Link>
 
-        <Link href="/reportes/sintetizados/categorias">
+        <Link href="reportes/sintetizados/rendimiento-devoluciones">
           <Card className="h-full transition-all hover:shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -154,7 +154,7 @@ export default function AdminPage() {
           </Card>
         </Link>
 
-        <Link href="/reportes/sintetizados/categorias">
+        <Link href="reportes/sintetizados/distribucion-multas">
           <Card className="h-full transition-all hover:shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -174,7 +174,7 @@ export default function AdminPage() {
           </Card>
         </Link>
 
-        <Link href="/reportes/excepciones/usuarios-sin-multas">
+        <Link href="reportes/excepcion/usuarios-sin-multas">
           <Card className="h-full transition-all hover:shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

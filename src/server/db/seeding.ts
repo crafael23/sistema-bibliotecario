@@ -1,6 +1,6 @@
 "use server";
 
-import { libro } from "./schema"; // Asegúrate de que la ruta a tu archivo de esquema sea correcta
+import { libro, prestamo, reservacion, usuario } from "./schema"; // Asegúrate de que la ruta a tu archivo de esquema sea correcta
 import { db } from ".";
 import { randomUUID } from "crypto";
 
@@ -86,4 +86,83 @@ export async function seedDataLibros() {
   }
 
   console.log("¡Libros sembrados exitosamente!");
+}
+
+export async function seedTestData() {
+  // 1. Crear usuarios
+  const users = await Promise.all([
+    // Personal
+    db
+      .insert(usuario)
+      .values({
+        id: "STAFF-001",
+        clerkId: "staff_001",
+        email: "bibliotecario@test.com",
+        tipoDeUsuario: "personal",
+      })
+      .returning(),
+
+    // Usuarios normales
+    ...[1, 2, 3, 4].map((i) =>
+      db
+        .insert(usuario)
+        .values({
+          id: `USR-${i.toString().padStart(4, "0")}`,
+          clerkId: `user_${i}`,
+          email: `usuario${i}@test.com`,
+          tipoDeUsuario: "usuario",
+        })
+        .returning(),
+    ),
+  ]);
+
+  // 2. Seleccionar 20 libros existentes (para 4 usuarios × 5 reservas cada uno)
+  const libros = await db.select().from(libro).limit(20);
+
+  // 3. Crear reservaciones y préstamos
+  let libroIndex = 0;
+  const startDate = new Date(2024, 2, 1); // 1 de marzo 2024
+
+  for (const user of users.slice(1)) {
+    // Excluir al personal
+    const userId = user[0]!.id;
+
+    // Crear 5 reservaciones por usuario
+    for (let i = 0; i < 5; i++) {
+      // Calcular fechas
+      const fechaPrestamo = new Date(startDate);
+      fechaPrestamo.setDate(1 + i * 5); // Distribuir en el mes
+
+      const reserva = await db
+        .insert(reservacion)
+        .values({
+          fechaInicio: fechaPrestamo.toISOString(),
+          fechaFin: new Date(
+            fechaPrestamo.setDate(fechaPrestamo.getDate() + 7),
+          ).toISOString(),
+          estado: "activo",
+          usuarioId: userId,
+          libroId: libros[libroIndex]!.id,
+        })
+        .returning();
+
+      // Crear préstamo asociado
+      await db.insert(prestamo).values({
+        fechaPrestamo: fechaPrestamo.toISOString(),
+        reservaId: reserva[0]!.id,
+        fechaVencimiento: new Date(fechaPrestamo.getDate() + 7).toISOString(),
+        fechaDevolucion:
+          i % 2 === 0
+            ? new Date(
+                fechaPrestamo.setDate(fechaPrestamo.getDate() + 2),
+              ).toISOString()
+            : null,
+        personalId: users[0][0]!.id, // ID del personal
+      });
+
+      libroIndex++;
+    }
+  }
+
+  console.log("¡Datos creados exitosamente!");
 }
