@@ -1,3 +1,10 @@
+import {
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  UserButton,
+} from "@clerk/nextjs";
 import { Library } from "lucide-react";
 
 export default function Navigation() {

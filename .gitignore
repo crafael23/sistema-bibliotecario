@@ -45,3 +45,6 @@ yarn-error.log*
 # idea files
 .idea
 drizzle
+
+# clerk configuration (can include secrets)
+/.clerk/
