@@ -27,7 +27,7 @@ export default function RootLayout({
     <ClerkProvider localization={esES}>
       <html lang="es">
         <body className={inter.className}>
-          <div className="min-h-screen bg-gray-100">
+          <div className="min-h-screen bg-gray-100 bg-gradient-to-br from-[#61cee2] to-[#f34638]">
             <Navigation />
             <main className="container mx-auto px-4 py-6">{children}</main>
           </div>
