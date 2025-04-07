@@ -4,8 +4,8 @@ import React from "react";
 import { Button } from "~/components/ui/button";
 import { Check } from "lucide-react";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { z } from "zod";
-import { libroCopiaLocationSchema } from "../schemas";
+import { type z } from "zod";
+import { type libroCopiaLocationSchema } from "../schemas";
 
 type CopiasProgressProps = {
   copiaLocations: z.infer<typeof libroCopiaLocationSchema>[];

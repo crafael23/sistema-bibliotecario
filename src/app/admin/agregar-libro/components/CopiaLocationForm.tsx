@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { UseFormReturn } from "react-hook-form";
+import { type UseFormReturn } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -12,8 +12,8 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { libroCopiaLocationSchema } from "../schemas";
-import { z } from "zod";
+import { type libroCopiaLocationSchema } from "../schemas";
+import { type z } from "zod";
 
 type CopiaLocationFormProps = {
   form: UseFormReturn<z.infer<typeof libroCopiaLocationSchema>>;

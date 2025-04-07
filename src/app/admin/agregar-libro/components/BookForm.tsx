@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { UseFormReturn } from "react-hook-form";
+import { type UseFormReturn } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -17,8 +17,8 @@ import {
 } from "~/components/ui/form";
 import { ImageUploadField } from "./ImageUploadField";
 import { CategoryField } from "./CategoryField";
-import { libroFormSchema } from "../schemas";
-import { z } from "zod";
+import { type libroFormSchema } from "../schemas";
+import { type z } from "zod";
 
 type BookFormProps = {
   form: UseFormReturn<z.infer<typeof libroFormSchema>>;

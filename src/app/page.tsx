@@ -8,6 +8,8 @@ import { sembrarLibros } from "~/server/db/seeding";
 export default async function HomePage() {
   await handleInitialAuthRouting();
 
+  await handleInitialAuthRouting();
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <div className="text-center">

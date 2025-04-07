@@ -26,7 +26,7 @@ import { Badge } from "~/components/ui/badge";
 import { CheckCircle, User } from "lucide-react";
 import {
   formSchema,
-  FormValues,
+  type FormValues,
 } from "~/app/usuario/[userid]/new-user/form-schema";
 
 // Definir el tipo de datos del usuario

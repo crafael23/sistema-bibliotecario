@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { UseFormReturn } from "react-hook-form";
+import { type UseFormReturn } from "react-hook-form";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Book } from "lucide-react";
-import { libroFormSchema } from "../schemas";
-import { z } from "zod";
+import { type libroFormSchema } from "../schemas";
+import { type z } from "zod";
 
 type DialogImagePreviewProps = {
   form: UseFormReturn<z.infer<typeof libroFormSchema>>;

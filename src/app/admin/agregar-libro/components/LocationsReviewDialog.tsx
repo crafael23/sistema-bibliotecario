@@ -13,7 +13,10 @@ import {
 } from "~/components/ui/dialog";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { type UseFormReturn } from "react-hook-form";
-import { type libroFormSchema, type libroCopiaLocationSchema } from "../schemas";
+import {
+  type libroFormSchema,
+  type libroCopiaLocationSchema,
+} from "../schemas";
 import { type z } from "zod";
 
 type LocationsReviewDialogProps = {
@@ -78,13 +81,6 @@ export const LocationsReviewDialog: React.FC<LocationsReviewDialogProps> = ({
                 ))}
               </div>
             </ScrollArea>
-          </div>
-
-          <div className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
-            <p>
-              Una vez confirmado, no podrá modificar las localizaciones sin
-              crear un nuevo registro. Por favor, revise cuidadosamente.
-            </p>
           </div>
         </div>
 

@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { PageHeader } from "~/components/page-header";
 import {
   Table,

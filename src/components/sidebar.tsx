@@ -1,49 +1,64 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Book, ChevronLeft, ChevronRight, FileText, Home, Menu, Plus, Users, X } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "~/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
-import { cn } from "~/lib/utils"
+import { useState, useEffect } from "react";
+import {
+  Book,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Home,
+  Menu,
+  Plus,
+  Users,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "~/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { cn } from "~/lib/utils";
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const pathname = usePathname();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Detectar si es móvil
   useEffect(() => {
     const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+      setIsMobile(window.innerWidth < 768);
+    };
 
-    checkIfMobile()
-    window.addEventListener("resize", checkIfMobile)
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
 
     return () => {
-      window.removeEventListener("resize", checkIfMobile)
-    }
-  }, [])
+      window.removeEventListener("resize", checkIfMobile);
+    };
+  }, []);
 
   const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed)
-  }
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
 
   const isActive = (path: string) => {
-    if (path === "/admin") return pathname === path
-    return pathname.startsWith(path)
-  }
+    if (path === "/admin") return pathname === path;
+    return pathname.startsWith(path);
+  };
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-20 flex h-16 items-center gap-4 border-b bg-gray-100 px-4 md:px-6">
+      <header className="fixed left-0 right-0 top-0 z-20 flex h-16 items-center gap-4 border-b bg-gray-100 px-4 md:px-6">
         {isMobile && (
-          <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden"
+          >
             <Menu className="h-5 w-5" />
           </Button>
         )}
@@ -52,7 +67,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
           <span>Sistema Bibliotecario</span>
         </Link>
         <div className="ml-auto flex items-center gap-4">
-          <Avatar className="h-9 w-9 cursor-pointer border-2 border-gray-200 hover:border-gray-300 transition-colors">
+          <Avatar className="h-9 w-9 cursor-pointer border-2 border-gray-200 transition-colors hover:border-gray-300">
             <AvatarImage src="" alt="Foto de perfil" />
             <AvatarFallback className="bg-gray-200 text-gray-700">
               <Users className="h-5 w-5" />
@@ -64,17 +79,31 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen pt-16">
         {/* Menú móvil */}
         {isMobile && mobileMenuOpen && (
-          <div className="fixed inset-0 z-10 bg-black/50 md:hidden" onClick={() => setMobileMenuOpen(false)}>
+          <div
+            className="fixed inset-0 z-10 bg-black/50 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          >
             <div
-              className="absolute left-0 top-0 bottom-0 w-64 bg-[#61cee2] p-4 flex flex-col overflow-auto"
+              className="absolute bottom-0 left-0 top-0 flex w-64 flex-col overflow-auto bg-[#61cee2] p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between mb-6 bg-[#f34638] -m-4 p-4 mb-4">
+              <div className="-m-4 mb-4 mb-6 flex items-center justify-between bg-[#f34638] p-4">
                 <div className="flex items-center gap-2">
-                  <img src="/images/casa-cultura-logo.png" alt="Logo Casa de la Cultura" className="h-10 w-10" />
-                  <span className="font-semibold text-white">Casa de la cultura</span>
+                  <img
+                    src="public/images/logo.jpeg"
+                    alt="Logo Casa de la Cultura"
+                    className="h-10 w-10"
+                  />
+                  <span className="font-semibold text-white">
+                    Casa de la cultura
+                  </span>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} className="text-white">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-white"
+                >
                   <X className="h-5 w-5" />
                 </Button>
               </div>
@@ -91,7 +120,10 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                     <span>Página Principal</span>
                   </Button>
                 </Link>
-                <Link href="/admin/inventario" onClick={() => setMobileMenuOpen(false)}>
+                <Link
+                  href="/admin/inventario"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   <Button
                     variant="ghost"
                     className={cn(
@@ -103,7 +135,10 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                     <span>Inventario</span>
                   </Button>
                 </Link>
-                <Link href="/admin/usuarios" onClick={() => setMobileMenuOpen(false)}>
+                <Link
+                  href="/admin/usuarios"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   <Button
                     variant="ghost"
                     className={cn(
@@ -115,7 +150,10 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                     <span>Usuarios</span>
                   </Button>
                 </Link>
-                <Link href="/admin/reportes" onClick={() => setMobileMenuOpen(false)}>
+                <Link
+                  href="/admin/reportes"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   <Button
                     variant="ghost"
                     className={cn(
@@ -127,8 +165,14 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                     <span>Reportes</span>
                   </Button>
                 </Link>
-                <Link href="/admin/agregar-libro" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="justify-start gap-2 text-white hover:bg-white/20">
+                <Link
+                  href="/admin/agregar-libro"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button
+                    variant="ghost"
+                    className="justify-start gap-2 text-white hover:bg-white/20"
+                  >
                     <Plus className="h-5 w-5 flex-shrink-0" />
                     <span>Agregar Libro</span>
                   </Button>
@@ -141,21 +185,29 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
         {/* Barra lateral para escritorio */}
         <aside
           className={cn(
-            "bg-[#61cee2] text-white transition-all duration-300 ease-in-out border-r border-white/20 flex-col",
+            "flex-col border-r border-white/20 bg-[#61cee2] text-white transition-all duration-300 ease-in-out",
             sidebarCollapsed ? "md:w-[70px]" : "md:w-[220px]",
-            "hidden md:flex fixed h-[calc(100vh-4rem)] top-16 left-0 z-10",
+            "fixed left-0 top-16 z-10 hidden h-[calc(100vh-4rem)] md:flex",
           )}
         >
           <div
             className={cn(
-              "flex items-center justify-center p-4 border-b border-white/20 bg-[#f34638]",
+              "flex items-center justify-center border-b border-white/20 bg-[#f34638] p-4",
               sidebarCollapsed ? "flex-col" : "flex-col",
             )}
           >
-            <img src="/images/casa-cultura-logo.png" alt="Logo Casa de la Cultura" className="h-12 w-12 mb-2" />
-            {!sidebarCollapsed && <span className="font-semibold text-center">Casa de la cultura</span>}
+            <img
+              src="/images/casa-cultura-logo.png"
+              alt="Logo Casa de la Cultura"
+              className="mb-2 h-12 w-12"
+            />
+            {!sidebarCollapsed && (
+              <span className="text-center font-semibold">
+                Casa de la cultura
+              </span>
+            )}
           </div>
-          <nav className="grid gap-2 p-4 text-sm overflow-y-auto">
+          <nav className="grid gap-2 overflow-y-auto p-4 text-sm">
             <Link href="/admin">
               <Button
                 variant="ghost"
@@ -222,14 +274,18 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
               </Button>
             </Link>
           </nav>
-          <div className="p-4 mt-auto border-t border-white/20">
+          <div className="mt-auto border-t border-white/20 p-4">
             <Button
               variant="ghost"
               size="sm"
               className="w-full justify-center text-white hover:bg-white/20"
               onClick={toggleSidebar}
             >
-              {sidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+              {sidebarCollapsed ? (
+                <ChevronRight className="h-5 w-5" />
+              ) : (
+                <ChevronLeft className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </aside>
@@ -237,7 +293,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
         {/* Contenido principal */}
         <div
           className={cn(
-            "flex flex-col flex-1 min-h-screen w-full",
+            "flex min-h-screen w-full flex-1 flex-col",
             "md:ml-[220px]",
             sidebarCollapsed && "md:ml-[70px]",
             "transition-all duration-300 ease-in-out",
@@ -247,6 +303,5 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     </>
-  )
+  );
 }
-

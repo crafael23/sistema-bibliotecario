@@ -1,6 +1,6 @@
 "use client";
 
-import { UseFormReturn } from "react-hook-form";
+import { type UseFormReturn } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -19,8 +19,8 @@ import {
 } from "~/components/ui/select";
 import { Button } from "~/components/ui/button";
 import { Loader2, Info } from "lucide-react";
-import { libroCopiaEditSchema } from "../schemas";
-import { z } from "zod";
+import { type libroCopiaEditSchema } from "../schemas";
+import { type z } from "zod";
 import {
   Tooltip,
   TooltipContent,

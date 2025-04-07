@@ -12,7 +12,7 @@ import { useLibroEdit } from "../hooks/useLibroEdit";
 import { useCopiaEdit } from "../hooks/useCopiaEdit";
 import { useNewCopia } from "../hooks/useNewCopia";
 import { Button } from "~/components/ui/button";
-import { estadoLibroEnum } from "~/server/db/schema";
+import { type estadoLibroEnum } from "~/server/db/schema";
 
 type EstadoLibro = (typeof estadoLibroEnum.enumValues)[number];
 

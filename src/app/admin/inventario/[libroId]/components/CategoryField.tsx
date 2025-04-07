@@ -18,17 +18,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { X } from "lucide-react";
-import { type libroFormSchema } from "../schemas";
+import { X, Info } from "lucide-react";
+import { type libroEditSchema } from "../schemas";
 import { type z } from "zod";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 type CategoryFieldProps = {
-  form: UseFormReturn<z.infer<typeof libroFormSchema>>;
+  form: UseFormReturn<z.infer<typeof libroEditSchema>>;
   categorias: string[];
+  isSubmitting: boolean;
 };
 
 export const CategoryField: React.FC<CategoryFieldProps> = React.memo(
-  function CategoryField({ form, categorias }) {
+  function CategoryField({ form, categorias, isSubmitting }) {
     const [isCustomCategoryMode, setIsCustomCategoryMode] = useState(false);
 
     return (
@@ -42,15 +49,28 @@ export const CategoryField: React.FC<CategoryFieldProps> = React.memo(
           return (
             <FormItem>
               <FormLabel>
-                Categoría <span className="text-red-500">*</span>
+                Categoría
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="ml-1 h-3.5 w-3.5 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[300px]">
+                      Seleccione la categoría principal del libro o agregue una
+                      nueva.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </FormLabel>
 
               {!isCustomCategoryMode ? (
                 <FormControl>
                   <Select
+                    disabled={isSubmitting}
                     onValueChange={(value) => {
                       if (value === "agregar_nueva") {
                         setIsCustomCategoryMode(true);
+                        field.onChange(""); // Clear the field value
                       } else {
                         field.onChange(value);
                       }
@@ -58,7 +78,7 @@ export const CategoryField: React.FC<CategoryFieldProps> = React.memo(
                     value={selectValue}
                     defaultValue={selectValue}
                   >
-                    <SelectTrigger className="bg-white">
+                    <SelectTrigger>
                       <SelectValue placeholder="Seleccionar categoría" />
                     </SelectTrigger>
                     <SelectContent>
@@ -78,7 +98,7 @@ export const CategoryField: React.FC<CategoryFieldProps> = React.memo(
                   <FormControl>
                     <Input
                       placeholder="Escribir nueva categoría"
-                      className="bg-white"
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -86,9 +106,10 @@ export const CategoryField: React.FC<CategoryFieldProps> = React.memo(
                     type="button"
                     variant="outline"
                     size="icon"
+                    disabled={isSubmitting}
                     onClick={() => {
                       setIsCustomCategoryMode(false);
-                      field.onChange("");
+                      field.onChange(""); // Reset the value
                     }}
                     title="Volver a seleccionar categoría existente"
                   >

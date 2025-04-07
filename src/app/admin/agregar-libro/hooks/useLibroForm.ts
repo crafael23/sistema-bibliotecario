@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "~/hooks/use-toast";
 import { createLibroWithCopias } from "../actions";
 import { libroFormSchema, libroCopiaLocationSchema } from "../schemas";
-import { z } from "zod";
+import { type z } from "zod";
 
 // Types for our form values
 type LibroFormValues = z.infer<typeof libroFormSchema>;

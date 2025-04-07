@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { UseFormReturn } from "react-hook-form";
+import { type UseFormReturn } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -18,8 +18,8 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { DialogImagePreview } from "./DialogImagePreview";
-import { libroFormSchema } from "../schemas";
-import { z } from "zod";
+import { type libroFormSchema } from "../schemas";
+import { type z } from "zod";
 
 type ConfirmationDialogProps = {
   open: boolean;

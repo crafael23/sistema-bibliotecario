@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "~/hooks/use-toast";
 import { updateLibro, deleteUploadedFile } from "../actions";
 import { libroEditSchema } from "../schemas";
-import { z } from "zod";
+import { type z } from "zod";
 import { useRouter } from "next/navigation";
 
 // Types for our form values

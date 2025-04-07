@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { type UseFormReturn } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -25,8 +25,8 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Card, CardContent } from "~/components/ui/card";
 import { Loader2, ImageIcon, Info } from "lucide-react";
 import { UploadButton } from "~/utils/uploadthing";
-import { libroEditSchema } from "../schemas";
-import { z } from "zod";
+import { type libroEditSchema } from "../schemas";
+import { type z } from "zod";
 import {
   Tooltip,
   TooltipContent,
@@ -36,6 +36,7 @@ import {
 import Image from "next/image";
 import { ConfirmationDialog } from "./ConfirmationDialog";
 import { DialogImagePreview } from "./DialogImagePreview";
+import { CategoryField } from "./CategoryField";
 
 type LibroEditFormValues = z.infer<typeof libroEditSchema>;
 
@@ -169,46 +170,11 @@ export function LibroEditForm({
               )}
             />
 
-            {/* Category */}
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Categoría
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="ml-1 h-3.5 w-3.5 text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          Seleccione la categoría principal del libro.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </FormLabel>
-                  <Select
-                    disabled={isSubmitting}
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categorias.map((categoria) => (
-                        <SelectItem key={categoria} value={categoria}>
-                          {categoria}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+            {/* Category - Using our custom CategoryField component */}
+            <CategoryField
+              form={form}
+              categorias={categorias}
+              isSubmitting={isSubmitting}
             />
 
             {/* Publisher */}

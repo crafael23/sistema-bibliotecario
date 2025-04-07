@@ -6,9 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "~/hooks/use-toast";
 import { updateLibroCopia } from "../actions";
 import { libroCopiaEditSchema } from "../schemas";
-import { z } from "zod";
+import { type z } from "zod";
 import { useRouter } from "next/navigation";
-import { estadoLibroEnum } from "~/server/db/schema";
+import { type estadoLibroEnum } from "~/server/db/schema";
 
 // Types for our form values
 type CopiaEditFormValues = z.infer<typeof libroCopiaEditSchema>;
