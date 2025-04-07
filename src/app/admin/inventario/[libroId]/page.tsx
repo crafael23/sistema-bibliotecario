@@ -1,7 +1,7 @@
-import { getLibroWithCopias } from "~/server/db/queries";
+import { getLibroWithCopias, getCategorias } from "~/server/db/queries";
 import { PageHeader } from "~/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Book, MapPin, Tag, Info } from "lucide-react";
+import { Book, MapPin, Tag, Info, Edit } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,13 +12,15 @@ import {
 } from "~/components/ui/table";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { LibroEditManager } from "./components/LibroEditManager";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 
 // Define prop types for params
-type Props = {
-  params: {
-    libroId: string;
-  };
-};
 
 export default async function LibroDetailsPage({
   params,
@@ -35,10 +37,20 @@ export default async function LibroDetailsPage({
 
   // Fetch libro details using the getLibroWithCopias function
   const libroData = await getLibroWithCopias(Number(libroId));
+  const categorias = await getCategorias();
 
   if (!libroData) {
     notFound();
   }
+
+  // Type-safe libro data for the LibroEditManager
+  const libroWithCopias = {
+    ...libroData,
+    copias: libroData.copias.map((copia) => ({
+      ...copia,
+      estado: copia.estado,
+    })),
+  };
 
   return (
     <>
@@ -162,6 +174,31 @@ export default async function LibroDetailsPage({
                   </TableBody>
                 </Table>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Editar Libro y Ejemplares */}
+          <Card className="bg-white shadow-md md:col-span-3">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Edit className="h-5 w-5" />
+                Modificar Libro y Ejemplares
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="edit-forms">
+                  <AccordionTrigger>
+                    Mostrar Opciones de Edición
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <LibroEditManager
+                      libro={libroWithCopias}
+                      categorias={categorias}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </CardContent>
           </Card>
         </div>
