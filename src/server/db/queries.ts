@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, sql } from "drizzle-orm";
+import { and, eq, gte, lte, sql, or } from "drizzle-orm";
 import { db } from "./index";
 import { libro, reservacion, usuario, libroCopia } from "./schema";
 import { z } from "zod";
@@ -43,27 +43,6 @@ import { cifraridentidad } from "~/lib/random-utils";
 //   return reservas;
 // }
 //
-export const libroSchema = z.object({
-  id: z.string(),
-  nombre: z.string(),
-  categoria: z.string(),
-  estado: z.enum(["disponible", "reservado", "prestado", "mantenimiento"]),
-  groupId: z.string(),
-});
-
-export type libroType = z.infer<typeof libroSchema>;
-//
-// export async function insertarLibro(nuevoLibro: libroType) {
-//   console.log("insertando libro");
-//   await db.insert(libro).values({
-//     id: nuevoLibro.id,
-//     nombre: nuevoLibro.nombre,
-//     categoria: nuevoLibro.categoria,
-//     estado: nuevoLibro.estado,
-//     groupId: Number(nuevoLibro.groupId),
-//   });
-// }
-
 export async function getUsuario(userId: string) {
   return (
     await db.select().from(usuario).where(eq(usuario.clerkId, userId)).limit(1)
@@ -106,4 +85,117 @@ export async function getLibroWithCopias(libroId: number) {
   });
 
   return libroData;
+}
+
+export async function getLibrosPaginated(
+  cursor?: number,
+  pageSize = 5,
+  orderBy: "asc" | "desc" = "asc",
+) {
+  // For cursor-based pagination, we need to use > or < for the next page,
+  // but = for the exact cursor when navigating back to a specific page
+  const whereCondition =
+    cursor !== undefined
+      ? orderBy === "asc"
+        ? cursor === 0
+          ? undefined // First page special case
+          : gte(libro.id, cursor)
+        : cursor === 0
+          ? undefined // First page special case
+          : lte(libro.id, cursor)
+      : undefined;
+
+  const libros = await db
+    .select({
+      id: libro.id,
+      codigo: libro.codigo,
+      nombre: libro.nombre,
+      categoria: libro.categoria,
+      autor: libro.autor,
+      isbn: libro.isbn,
+      edicion: libro.edicion,
+      descripcion: libro.descripcion,
+      editorial: libro.editorial,
+      urlImagenPortada: libro.urlImagenPortada,
+      copias: sql<number>`CAST(COUNT(${libroCopia.id}) AS INTEGER)`,
+    })
+    .from(libro)
+    .leftJoin(libroCopia, eq(libro.id, libroCopia.libroId))
+    .where(whereCondition)
+    .groupBy(
+      libro.id,
+      libro.codigo,
+      libro.nombre,
+      libro.categoria,
+      libro.autor,
+      libro.isbn,
+      libro.edicion,
+      libro.descripcion,
+      libro.editorial,
+      libro.urlImagenPortada,
+    )
+    .limit(pageSize + 1) // Get one extra to determine if there are more results
+    .orderBy(orderBy === "asc" ? sql`${libro.id} asc` : sql`${libro.id} desc`);
+
+  // Check if there are more results
+  const hasNextPage = libros.length > pageSize;
+
+  // Remove the extra item if it exists
+  const results = hasNextPage ? libros.slice(0, pageSize) : libros;
+
+  // Get the new cursor from the last item
+  const lastItem = results.length > 0 ? results[results.length - 1] : null;
+  const nextCursor = lastItem ? lastItem.id : null;
+
+  return {
+    libros: results,
+    nextCursor,
+    hasNextPage,
+  };
+}
+
+export async function searchLibros(searchTerm: string) {
+  const searchPattern = `%${searchTerm.toLowerCase()}%`;
+
+  const libros = await db
+    .select({
+      id: libro.id,
+      codigo: libro.codigo,
+      nombre: libro.nombre,
+      categoria: libro.categoria,
+      autor: libro.autor,
+      isbn: libro.isbn,
+      edicion: libro.edicion,
+      descripcion: libro.descripcion,
+      editorial: libro.editorial,
+      urlImagenPortada: libro.urlImagenPortada,
+      copias: sql<number>`CAST(COUNT(${libroCopia.id}) AS INTEGER)`,
+    })
+    .from(libro)
+    .leftJoin(libroCopia, eq(libro.id, libroCopia.libroId))
+    .where(
+      or(
+        sql`LOWER(${libro.nombre}) LIKE ${searchPattern}`,
+        sql`LOWER(${libro.autor}) LIKE ${searchPattern}`,
+        sql`LOWER(${libro.categoria}) LIKE ${searchPattern}`,
+      ),
+    )
+    .groupBy(
+      libro.id,
+      libro.codigo,
+      libro.nombre,
+      libro.categoria,
+      libro.autor,
+      libro.isbn,
+      libro.edicion,
+      libro.descripcion,
+      libro.editorial,
+      libro.urlImagenPortada,
+    )
+    .orderBy(sql`${libro.nombre} asc`);
+
+  return {
+    libros: libros,
+    isSearchResult: true,
+  };
 }

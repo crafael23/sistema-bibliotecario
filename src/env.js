@@ -12,6 +12,7 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     SIGNING_SECRET: z.string().min(1, "Clerk webhook secret is required"),
+    UPLOADTHING_TOKEN: z.string().min(1, "UPLOADTHING_TOKEN is required"),
   },
 
   /**
@@ -31,6 +32,9 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     SIGNING_SECRET: process.env.SIGNING_SECRET,
+
+    UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
+
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

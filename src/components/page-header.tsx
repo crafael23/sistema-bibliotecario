@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { Button } from "~/components/ui/button"
-import { Input } from "~/components/ui/input"
-import { ArrowLeft, Calendar, Plus, Search } from "lucide-react"
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { ArrowLeft, Calendar, Plus, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface PageHeaderProps {
-  title: string
-  icon?: React.ReactNode
-  showSearch?: boolean
-  showAddButton?: boolean
-  searchPlaceholder?: string
-  onSearch?: (query: string) => void
-  backUrl?: string
-  showDateTime?: boolean
+  title: string;
+  icon?: React.ReactNode;
+  showSearch?: boolean;
+  showAddButton?: boolean;
+  searchPlaceholder?: string;
+  onSearch?: (query: string) => void;
+  backUrl?: string;
+  showDateTime?: boolean;
 }
 
 export function PageHeader({
@@ -30,68 +30,74 @@ export function PageHeader({
   backUrl,
   showDateTime = false,
 }: PageHeaderProps) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const pathname = usePathname()
-  const [currentDate, setCurrentDate] = useState("")
-  const [currentTime, setCurrentTime] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
+  const pathname = usePathname();
+  const [currentDate, setCurrentDate] = useState("");
+  const [currentTime, setCurrentTime] = useState("");
 
   // Si no se proporciona una URL de retorno específica, determinar automáticamente
-  const shouldShowBackButton = pathname !== "/admin"
-  const effectiveBackUrl = backUrl || (pathname.includes("/admin/reportes/") ? "/admin/reportes" : "/admin")
+  const shouldShowBackButton = pathname !== "/admin";
+  const effectiveBackUrl =
+    backUrl ??
+    (pathname.includes("/admin/reportes/") ? "/admin/reportes" : "/admin");
 
   useEffect(() => {
     if (showDateTime) {
       const updateDateTime = () => {
-        const now = new Date()
+        const now = new Date();
         setCurrentDate(
           now.toLocaleDateString("es-ES", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
           }),
-        )
+        );
         setCurrentTime(
           now.toLocaleTimeString("es-ES", {
             hour: "2-digit",
             minute: "2-digit",
           }),
-        )
-      }
+        );
+      };
 
-      updateDateTime()
-      const interval = setInterval(updateDateTime, 60000) // Actualizar cada minuto
+      updateDateTime();
+      const interval = setInterval(updateDateTime, 60000); // Actualizar cada minuto
 
-      return () => clearInterval(interval)
+      return () => clearInterval(interval);
     }
-  }, [showDateTime])
+  }, [showDateTime]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value
-    setSearchQuery(query)
+    const query = e.target.value;
+    setSearchQuery(query);
     if (onSearch) {
-      onSearch(query)
+      onSearch(query);
     }
-  }
+  };
 
   return (
     <div className="mb-6 w-full">
-      <div className="flex items-center justify-between p-4 md:p-6 w-full">
+      <div className="flex w-full items-center justify-between p-4 md:p-6">
         <div className="flex items-center gap-3">
           {shouldShowBackButton && (
             <Link href={effectiveBackUrl}>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-white/20">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-white hover:bg-white/20"
+              >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             </Link>
           )}
-          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="flex items-center gap-2 text-xl font-bold text-white sm:text-2xl">
             {icon}
             {title}
           </h1>
         </div>
 
         {showDateTime && (
-          <div className="flex items-center gap-2 bg-white/90 p-2 rounded-md shadow text-sm ml-auto">
+          <div className="ml-auto flex items-center gap-2 rounded-md bg-white/90 p-2 text-sm shadow">
             <Calendar className="h-4 w-4" />
             <span>{currentDate}</span>
             <span>|</span>
@@ -101,14 +107,14 @@ export function PageHeader({
       </div>
 
       {(showSearch || showAddButton) && (
-        <div className="flex flex-wrap items-center justify-end gap-4 px-4 md:px-6 pb-4 md:pb-6">
+        <div className="flex flex-wrap items-center justify-end gap-4 px-4 pb-4 md:px-6 md:pb-6">
           {showSearch && (
-            <div className="relative flex-grow max-w-md">
+            <div className="relative max-w-md flex-grow">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder={searchPlaceholder}
-                className="pl-8 w-full bg-white/95"
+                className="w-full bg-white/95 pl-8"
                 value={searchQuery}
                 onChange={handleSearch}
               />
@@ -125,6 +131,5 @@ export function PageHeader({
         </div>
       )}
     </div>
-  )
+  );
 }
-

@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getUsuario } from "~/server/db/queries";
 
-export async function handleAuthRouting(): Promise<void> {
+export async function handleInitialAuthRouting(): Promise<void> {
   const { userId, redirectToSignIn } = await auth();
 
   if (!userId) {

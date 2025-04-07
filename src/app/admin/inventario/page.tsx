@@ -1,50 +1,81 @@
-"use client"
+import { getLibrosPaginated, searchLibros } from "~/server/db/queries";
+import InventarioComponent from "./inventario-component";
+import { z } from "zod";
 
-import { useState } from "react"
-import { PageHeader } from "~/components/page-header"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
-import { Book } from "lucide-react"
+export const dynamic = "force-dynamic";
 
-export default function InventarioPage() {
-  const [searchQuery, setSearchQuery] = useState("")
+// Define the pagination parameters schema
+const paginationParamsSchema = z.object({
+  cursor: z.number().optional(),
+  pageSize: z.number().optional().default(5),
+  orderBy: z.enum(["asc", "desc"]).optional().default("asc"),
+});
+
+// Define the search parameters schema
+const searchParamsSchema = z.object({
+  searchTerm: z.string().min(1),
+});
+
+// Define the action to fetch paginated data
+export async function getLibrosAction(params: {
+  cursor?: number;
+  pageSize?: number;
+  orderBy?: "asc" | "desc";
+}) {
+  "use server";
+
+  // Validate and parse the input parameters
+  const validParams = paginationParamsSchema.parse(params);
+
+  // For first page with no cursor, we need to ensure we get the first page
+  // by setting cursor to undefined
+  const cursor = validParams.cursor === null ? undefined : validParams.cursor;
+
+  // Get the paginated data using our query function
+  const data = await getLibrosPaginated(
+    cursor,
+    validParams.pageSize,
+    validParams.orderBy,
+  );
+
+  return {
+    libros: data.libros,
+    nextCursor: data.nextCursor,
+    hasNextPage: data.hasNextPage,
+    isSearchResult: false,
+  };
+}
+
+// Define the action to search for books
+export async function searchLibrosAction(params: { searchTerm: string }) {
+  "use server";
+
+  // Validate and parse the search term
+  const validParams = searchParamsSchema.parse(params);
+
+  // Search for books using the search function
+  const data = await searchLibros(validParams.searchTerm);
+
+  return {
+    libros: data.libros,
+    nextCursor: null,
+    hasNextPage: false,
+    isSearchResult: true,
+    searchTerm: validParams.searchTerm,
+  };
+}
+
+export default async function InventarioPage() {
+  // Get initial data
+  const initialData = await getLibrosPaginated(undefined, 5);
 
   return (
     <>
-      <PageHeader
-        title="Inventario de Libros"
-        icon={<Book className="h-6 w-6" />}
-        showSearch={true}
-        showAddButton={true}
-        searchPlaceholder="Buscar libros..."
-        onSearch={setSearchQuery}
+      <InventarioComponent
+        initialData={initialData}
+        getLibrosAction={getLibrosAction}
+        searchLibrosAction={searchLibrosAction}
       />
-      <main className="flex-1 px-4 md:px-6 pb-6 overflow-auto w-full">
-        <div className="rounded-md border bg-gray-100 shadow-md w-full">
-          <div className="overflow-x-auto w-full">
-            <Table className="w-full min-w-[800px]">
-              <TableHeader className="bg-gray-200">
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Título</TableHead>
-                  <TableHead>Autor</TableHead>
-                  <TableHead>Categoría</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Ejemplares</TableHead>
-                  <TableHead>Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-10">
-                    No hay libros registrados en el sistema.
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      </main>
     </>
-  )
+  );
 }
-

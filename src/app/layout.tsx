@@ -11,8 +11,14 @@ import {
 import { Inter } from "next/font/google";
 import "../styles/globals.css";
 import Navigation from "~/components/navigation";
-const inter = Inter({ subsets: ["latin"] });
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "~/app/api/uploadthing/core";
 import { esES } from "@clerk/localizations";
+import { Toaster } from "~/components/ui/toaster";
+
+const inter = Inter({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
   title: "Sistema de Gestión de Biblioteca",
   description: "Un sistema simple de gestión de biblioteca",
@@ -27,10 +33,12 @@ export default function RootLayout({
     <ClerkProvider localization={esES}>
       <html lang="es">
         <body className={inter.className}>
-          <div className="min-h-screen bg-gray-100 bg-gradient-to-br from-[#61cee2] to-[#f34638]">
+          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+          <div className="min-h-screen bg-gradient-to-br from-[#61cee2] to-[#f34638]">
             <Navigation />
             <main className="container mx-auto px-4 py-6">{children}</main>
           </div>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

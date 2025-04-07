@@ -90,14 +90,7 @@ export type selectLibroCopiaType = z.infer<typeof selectLibroCopiaSchema>;
 export const insertLibroSchema = createInsertSchema(libro);
 export type insertLibroType = z.infer<typeof insertLibroSchema>;
 export const selectLibroSchema = createSelectSchema(libro);
-
-export const libroRelations = relations(libro, ({ many }) => ({
-  reservaciones: many(reservacion),
-  copias: many(libroCopia),
-}));
-export const libroCopiaRelations = relations(libroCopia, ({ one }) => ({
-  libro: one(libro),
-}));
+export type selectLibroType = z.infer<typeof selectLibroSchema>;
 
 export const tipoDeUsuarioEnum = pgEnum("tipo_de_usuario", [
   "externos",
@@ -143,12 +136,6 @@ export type insertUsuarioType = z.infer<typeof insertUsuarioSchema>;
 export const selectUsuarioSchema = createSelectSchema(usuario);
 export type selectUsuarioType = z.infer<typeof selectUsuarioSchema>;
 
-export const usuarioRelations = relations(usuario, ({ many }) => ({
-  reservaciones: many(reservacion),
-  prestamos: many(prestamo),
-  multas: many(multa),
-}));
-
 export const estadoPrestamoEnum = pgEnum("estado_prestamo", [
   "pendiente",
   "activo",
@@ -175,21 +162,6 @@ export const reservacion = createTable("reservacion", {
 // Create Zod schemas for reservacion
 export const insertReservacionSchema = createInsertSchema(reservacion);
 export const selectReservacionSchema = createSelectSchema(reservacion);
-
-export const reservacionRelations = relations(reservacion, ({ one }) => ({
-  usuario: one(usuario, {
-    fields: [reservacion.usuarioId],
-    references: [usuario.clerkId],
-  }),
-  libro: one(libro, {
-    fields: [reservacion.libroId],
-    references: [libro.id],
-  }),
-  prestamo: one(prestamo, {
-    fields: [reservacion.id],
-    references: [prestamo.reservaId],
-  }),
-}));
 
 export const prestamo = createTable("prestamo", {
   id: serial("id").primaryKey(),
@@ -227,6 +199,40 @@ export const multa = createTable("multa", {
 export const insertMultaSchema = createInsertSchema(multa);
 export const selectMultaSchema = createSelectSchema(multa);
 
+// Relations - define after all tables are created to avoid reference errors
+export const libroRelations = relations(libro, ({ many }) => ({
+  reservaciones: many(reservacion),
+  copias: many(libroCopia),
+}));
+
+export const libroCopiaRelations = relations(libroCopia, ({ one }) => ({
+  libro: one(libro, {
+    fields: [libroCopia.libroId],
+    references: [libro.id],
+  }),
+}));
+
+export const usuarioRelations = relations(usuario, ({ many }) => ({
+  reservaciones: many(reservacion),
+  prestamos: many(prestamo),
+  multas: many(multa),
+}));
+
+export const reservacionRelations = relations(reservacion, ({ one }) => ({
+  usuario: one(usuario, {
+    fields: [reservacion.usuarioId],
+    references: [usuario.clerkId],
+  }),
+  libro: one(libro, {
+    fields: [reservacion.libroId],
+    references: [libro.id],
+  }),
+  prestamo: one(prestamo, {
+    fields: [reservacion.id],
+    references: [prestamo.reservaId],
+  }),
+}));
+
 export const prestamoRelations = relations(prestamo, ({ one }) => ({
   reservacion: one(reservacion, {
     fields: [prestamo.reservaId],
@@ -236,7 +242,7 @@ export const prestamoRelations = relations(prestamo, ({ one }) => ({
     fields: [prestamo.personalId],
     references: [usuario.clerkId],
   }),
-  multas: one(multa),
+  multa: one(multa),
 }));
 
 export const multaRelations = relations(multa, ({ one }) => ({
