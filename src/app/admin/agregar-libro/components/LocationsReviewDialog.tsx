@@ -12,9 +12,9 @@ import {
   DialogFooter,
 } from "~/components/ui/dialog";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { UseFormReturn } from "react-hook-form";
-import { libroFormSchema, libroCopiaLocationSchema } from "../schemas";
-import { z } from "zod";
+import { type UseFormReturn } from "react-hook-form";
+import { type libroFormSchema, type libroCopiaLocationSchema } from "../schemas";
+import { type z } from "zod";
 
 type LocationsReviewDialogProps = {
   open: boolean;
