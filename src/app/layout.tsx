@@ -29,7 +29,7 @@ export default function RootLayout({
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
           <div className="min-h-screen bg-gradient-to-br from-[#61cee2] to-[#f34638]">
             <Navigation />
-            <main className="container mx-auto px-4 py-6">{children}</main>
+            <main>{children}</main>
           </div>
           <Toaster />
         </body>

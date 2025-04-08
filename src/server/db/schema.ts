@@ -165,7 +165,7 @@ export const selectReservacionSchema = createSelectSchema(reservacion);
 
 export const prestamo = createTable("prestamo", {
   id: serial("id").primaryKey(),
-  reservaId: integer("reserva_id").references(() => reservacion.id),
+  reservaId: integer("reserva_id").references(() => reservacion.id).notNull(),
   fechaPrestamo: date("fecha_prestamo").notNull(),
   fechaVencimiento: date("fecha_vencimiento").notNull(),
   fechaDevolucion: date("fecha_devolucion"),

@@ -2,12 +2,8 @@ import { Button } from "~/components/ui/button";
 import { Book } from "lucide-react";
 import Link from "next/link";
 import { handleInitialAuthRouting } from "~/lib/auth-utils";
-import SeedButton from "~/components/seed-button";
-import { sembrarLibros } from "~/server/db/seeding";
 
 export default async function HomePage() {
-  await handleInitialAuthRouting();
-
   await handleInitialAuthRouting();
 
   return (
@@ -25,6 +21,11 @@ export default async function HomePage() {
         <Link href="/admin">
           <Button className="bg-white text-black hover:bg-gray-100">
             Ir a la ruta de administrador
+          </Button>
+        </Link>
+        <Link href="/homepage">
+          <Button className="bg-white text-black hover:bg-gray-100">
+            Ir a la ruta de usuario
           </Button>
         </Link>
       </div>

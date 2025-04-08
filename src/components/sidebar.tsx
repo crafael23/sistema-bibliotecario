@@ -90,7 +90,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
               <div className="-m-4 mb-4 mb-6 flex items-center justify-between bg-[#f34638] p-4">
                 <div className="flex items-center gap-2">
                   <img
-                    src="public/images/logo.jpeg"
+                    src="/images/logo.jpeg"
                     alt="Logo Casa de la Cultura"
                     className="h-10 w-10"
                   />
@@ -197,7 +197,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
             )}
           >
             <img
-              src="/images/casa-cultura-logo.png"
+              src="/images/logo.jpeg"
               alt="Logo Casa de la Cultura"
               className="mb-2 h-12 w-12"
             />
