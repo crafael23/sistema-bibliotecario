@@ -32,12 +32,14 @@ import {
 } from "~/components/ui/select";
 import { Label } from "~/components/ui/label";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
 
 // Datos de prueba para distribución de multas por mes (2025)
@@ -216,7 +218,7 @@ const formatCurrency = (value: number) => {
   return `Lps. ${value.toFixed(2)}`;
 };
 
-// Componente personalizado para el tooltip del gráfico de pastel
+// Componente personalizado para el tooltip del gráfico de barras
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length > 0) {
     const data = payload[0];
@@ -245,40 +247,6 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-// Componente personalizado para renderizar etiquetas en el gráfico de pastel
-const renderCustomizedLabel = ({
-  cx,
-  cy,
-  midAngle,
-  innerRadius,
-  outerRadius,
-  percent,
-  index,
-  name,
-}: any) => {
-  const RADIAN = Math.PI / 180;
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-  // Solo mostrar etiquetas para segmentos con porcentaje significativo
-  if (percent < 0.05) return null;
-
-  return (
-    <text
-      x={x}
-      y={y}
-      fill="white"
-      textAnchor={x > cx ? "start" : "end"}
-      dominantBaseline="central"
-      fontSize={12}
-      fontWeight="bold"
-    >
-      {name}
-    </text>
-  );
-};
-
 // Obtener el mes actual
 const getMesActual = () => {
   const fecha = new Date();
@@ -304,7 +272,7 @@ export default function DistribucionMultas() {
     0,
   );
 
-  // Preparar datos para el gráfico de pastel
+  // Preparar datos para el gráfico de barras
   const datosPieChart = datosDelMes.map((item) => ({
     name: item.categoria,
     value: item.totalMultas,
@@ -375,38 +343,22 @@ export default function DistribucionMultas() {
         <CardContent>
           <div className="mb-10 h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={datosPieChart}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={renderCustomizedLabel}
-                  outerRadius={150}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {datosPieChart.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
+              <BarChart
+                data={datosPieChart}
+                margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
                 <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  layout="vertical"
-                  verticalAlign="middle"
-                  align="right"
-                  formatter={(value, entry, index) => {
-                    return (
-                      <span style={{ color: COLORS[index % COLORS.length] }}>
-                        {value} ({datosPieChart[index]?.porcentaje}%)
-                      </span>
-                    );
-                  }}
-                />
-              </PieChart>
+                <Legend />
+                <Bar dataKey="value" fill="#4f46e5" name="Total Multas" />
+              </BarChart>
             </ResponsiveContainer>
           </div>
 
