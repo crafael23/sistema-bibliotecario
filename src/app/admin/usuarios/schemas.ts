@@ -29,7 +29,6 @@ export const usuarioFormSchema = z.object({
   ),
   nuevo: z.boolean().default(true),
 });
-
 // Schema for pagination parameters
 export const usuarioPaginationParamsSchema = z.object({
   cursor: z.string().optional(),

@@ -1,6 +1,6 @@
 import { and, eq, gte, lte, sql, or } from "drizzle-orm";
 import { db } from "./index";
-import { libro, reservacion, usuario, libroCopia } from "./schema";
+import { libro, reservacion, usuario, libroCopia, multa } from "./schema";
 import { z } from "zod";
 import { cifraridentidad } from "~/lib/random-utils";
 
@@ -198,4 +198,96 @@ export async function searchLibros(searchTerm: string) {
     libros: libros,
     isSearchResult: true,
   };
+}
+
+export async function getReservacionesByUsuario(userId: string) {
+  const reservaciones = await db
+    .select({
+      id: reservacion.id,
+      codigoReferencia: reservacion.codigoReferencia,
+      estado: reservacion.estado,
+      libroId: reservacion.libroId,
+      libroNombre: libro.nombre,
+      libroAutor: libro.autor,
+      libroCodigo: libro.codigo,
+      fechaReserva: sql<string>`CURRENT_DATE`,
+      fechaVencimiento: sql<string>`CURRENT_DATE + INTERVAL '14 days'`,
+    })
+    .from(reservacion)
+    .innerJoin(libro, eq(reservacion.libroId, libro.id))
+    .where(eq(reservacion.usuarioId, userId))
+    .orderBy(sql`${reservacion.id} DESC`);
+
+  return reservaciones;
+}
+
+export async function getMultasByUsuario(userId: string) {
+  const multas = await db
+    .select({
+      id: multa.id,
+      prestamoId: multa.prestamoId,
+      monto: multa.monto,
+      estado: multa.estado,
+      categoriaMulta: multa.categoriaMulta,
+      fechaEmision: sql<string>`CURRENT_DATE`,
+      libroNombre: libro.nombre,
+      libroCodigo: libro.codigo,
+    })
+    .from(multa)
+    .innerJoin(libro, eq(multa.prestamoId, libro.id))
+    .where(eq(multa.usuarioId, userId))
+    .orderBy(sql`${multa.id} DESC`);
+
+  return multas.map((multa) => ({
+    ...multa,
+    libro: {
+      nombre: multa.libroNombre,
+      codigo: multa.libroCodigo,
+    },
+  }));
+}
+
+export async function updateUsuarioPerfil(
+  userId: string,
+  data: {
+    nombre?: string;
+    email?: string;
+    telefono?: string;
+    direccion?: string;
+    avatarUrl?: string;
+  },
+) {
+  await db
+    .update(usuario)
+    .set({
+      ...data,
+      ...(data.nombre ? { nombre: data.nombre } : {}),
+      ...(data.email ? { email: data.email } : {}),
+      ...(data.telefono ? { telefono: data.telefono } : {}),
+      ...(data.direccion ? { direccion: data.direccion } : {}),
+    })
+    .where(eq(usuario.clerkId, userId));
+
+  return await getUsuario(userId);
+}
+
+export async function updateUsuario(
+  clerkId: string,
+  data: {
+    nombre: string;
+    email: string;
+    telefono: string | null;
+    direccion: string | null;
+    avatarUrl: string;
+  },
+) {
+  await db
+    .update(usuario)
+    .set({
+      nombre: data.nombre,
+      email: data.email,
+      telefono: data.telefono,
+      direccion: data.direccion,
+    })
+    .where(eq(usuario.clerkId, clerkId));
 }

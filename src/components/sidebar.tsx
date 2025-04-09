@@ -13,8 +13,10 @@ import {
   Plus,
   Users,
   X,
+  BookMarked,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -66,14 +68,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
           <Book className="h-6 w-6" />
           <span>Sistema Bibliotecario</span>
         </Link>
-        <div className="ml-auto flex items-center gap-4">
-          <Avatar className="h-9 w-9 cursor-pointer border-2 border-gray-200 transition-colors hover:border-gray-300">
-            <AvatarImage src="" alt="Foto de perfil" />
-            <AvatarFallback className="bg-gray-200 text-gray-700">
-              <Users className="h-5 w-5" />
-            </AvatarFallback>
-          </Avatar>
-        </div>
       </header>
 
       <div className="flex min-h-screen pt-16">
@@ -87,12 +81,13 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
               className="absolute bottom-0 left-0 top-0 flex w-64 flex-col overflow-auto bg-[#61cee2] p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="-m-4 mb-4 mb-6 flex items-center justify-between bg-[#f34638] p-4">
+              <div className="-m-4 mb-4 flex items-center justify-between bg-[#f34638] p-4">
                 <div className="flex items-center gap-2">
-                  <img
+                  <Image
                     src="/images/logo.jpeg"
                     alt="Logo Casa de la Cultura"
-                    className="h-10 w-10"
+                    width={40}
+                    height={40}
                   />
                   <span className="font-semibold text-white">
                     Casa de la cultura
@@ -166,6 +161,21 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                   </Button>
                 </Link>
                 <Link
+                  href="/admin/reservas"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start gap-2 text-white hover:bg-white/20",
+                      isActive("/admin/reservas") && "bg-white/20",
+                    )}
+                  >
+                    <BookMarked className="h-5 w-5 flex-shrink-0" />
+                    <span>Reservas</span>
+                  </Button>
+                </Link>
+                <Link
                   href="/admin/agregar-libro"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -196,10 +206,12 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
               sidebarCollapsed ? "flex-col" : "flex-col",
             )}
           >
-            <img
+            <Image
               src="/images/logo.jpeg"
               alt="Logo Casa de la Cultura"
-              className="mb-2 h-12 w-12"
+              width={48}
+              height={48}
+              className="mb-2"
             />
             {!sidebarCollapsed && (
               <span className="text-center font-semibold">
@@ -258,6 +270,19 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
               >
                 <FileText className="h-5 w-5 flex-shrink-0" />
                 {!sidebarCollapsed && <span>Reportes</span>}
+              </Button>
+            </Link>
+            <Link href="/admin/reservas">
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start gap-2 text-white hover:bg-white/20",
+                  isActive("/admin/reservas") && "bg-white/20",
+                  sidebarCollapsed && "justify-center px-2",
+                )}
+              >
+                <BookMarked className="h-5 w-5 flex-shrink-0" />
+                {!sidebarCollapsed && <span>Reservas</span>}
               </Button>
             </Link>
             <Link href="/admin/agregar-libro">

@@ -14,6 +14,17 @@ import { format, parseISO, isSameDay } from "date-fns";
 
 export async function getUnavailableDates(bookId: number) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return {
+        success: false,
+        error: "Usuario no autenticado",
+        unavailableRanges: [],
+        availableCopies: 0,
+        totalCopies: 0,
+      };
+    }
+
     // Get all copies of the book
     const copies = await db
       .select()
@@ -35,6 +46,7 @@ export async function getUnavailableDates(bookId: number) {
       .select({
         startDate: prestamo.fechaPrestamo,
         endDate: prestamo.fechaVencimiento,
+        usuarioId: reservacion.usuarioId,
       })
       .from(reservacion)
       .innerJoin(prestamo, eq(prestamo.reservaId, reservacion.id))
@@ -48,10 +60,24 @@ export async function getUnavailableDates(bookId: number) {
 
     // Group reservations by date to count how many are active on each day
     const reservationsByDate = new Map<string, number>();
+    const userReservations = new Set<string>();
 
     reservations.forEach((res) => {
       const startDate = parseISO(res.startDate);
       const endDate = parseISO(res.endDate);
+
+      // If this is the current user's reservation, mark all these dates as unavailable
+      if (res.usuarioId === userId) {
+        let currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+          const dateKey = format(currentDate, "yyyy-MM-dd");
+          userReservations.add(dateKey);
+          // Move to next day
+          const nextDate = new Date(currentDate);
+          nextDate.setDate(nextDate.getDate() + 1);
+          currentDate = nextDate;
+        }
+      }
 
       // Mark each day in the range as having a reservation
       let currentDate = new Date(startDate);
@@ -67,12 +93,12 @@ export async function getUnavailableDates(bookId: number) {
       }
     });
 
-    // Find dates where all copies would be reserved
+    // Find dates where all copies would be reserved OR where the user already has a reservation
     const unavailableDates: Date[] = [];
     reservationsByDate.forEach((count, dateStr) => {
       // If number of reservations on this date equals or exceeds total copies,
-      // mark the date as unavailable
-      if (count >= copies.length) {
+      // or if the user already has a reservation on this date
+      if (count >= copies.length || userReservations.has(dateStr)) {
         unavailableDates.push(parseISO(dateStr));
       }
     });
@@ -155,7 +181,7 @@ export async function confirmReservation(formData: {
       const reservationData = {
         usuarioId: userId,
         libroId: formData.bookId,
-        estado: "activo" as const,
+        estado: "pendiente" as const,
         codigoReferencia: `LIB${Date.now().toString().slice(-3)}`, // Simple reference code
       };
 
@@ -173,7 +199,6 @@ export async function confirmReservation(formData: {
         reservaId: newReservation.id,
         fechaPrestamo: startDateStr,
         fechaVencimiento: endDateStr,
-        personalId: userId, // For now, using the same user as the librarian
       };
 
       await tx.insert(prestamo).values(loanData);

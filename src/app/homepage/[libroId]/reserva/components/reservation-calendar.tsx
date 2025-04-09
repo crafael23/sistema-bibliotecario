@@ -19,7 +19,7 @@ import {
 import { es } from "date-fns/locale";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { DateRange as DayPickerDateRange } from "react-day-picker";
+import { type DateRange as DayPickerDateRange } from "react-day-picker";
 import { useToast } from "~/hooks/use-toast";
 import { Badge } from "~/components/ui/badge";
 import {

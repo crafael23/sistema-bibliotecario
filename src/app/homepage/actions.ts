@@ -6,6 +6,12 @@ import { sql, eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { cache } from "react";
 import type { SQL } from "drizzle-orm";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { updateUsuario } from "~/server/db/queries";
+import { usuario } from "~/server/db/schema";
+import { reservacion } from "~/server/db/schema";
+import { multa } from "~/server/db/schema";
+import { revalidatePath } from "next/cache";
 
 // Schema for pagination parameters
 const paginationParamsSchema = z
@@ -180,4 +186,82 @@ export async function getLibrosPaginated(
     totalPages: Math.ceil(totalCount / pageSize),
     currentPage: Math.floor((cursor ?? 0) / pageSize) + 1,
   };
+}
+
+export async function updateUserProfile(data: {
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  direccion: string | null;
+  avatarUrl: string;
+}) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("No autenticado");
+
+  await db
+    .update(usuario)
+    .set({
+      nombre: data.nombre,
+      email: data.email,
+      telefono: data.telefono,
+      direccion: data.direccion,
+    })
+    .where(eq(usuario.clerkId, userId));
+
+  revalidatePath("/usuario/perfil");
+}
+
+export async function getUserReservations(userId: string) {
+  const { userId: authUserId } = await auth();
+  if (!authUserId) throw new Error("No autenticado");
+  if (authUserId !== userId) throw new Error("No autorizado");
+
+  const reservaciones = await db
+    .select({
+      id: reservacion.id,
+      codigoReferencia: reservacion.codigoReferencia,
+      estado: reservacion.estado,
+      libroId: reservacion.libroId,
+      libroNombre: libro.nombre,
+      libroAutor: libro.autor,
+      libroCodigo: libro.codigo,
+      fechaReserva: sql<string>`CURRENT_DATE`,
+      fechaVencimiento: sql<string>`CURRENT_DATE + INTERVAL '14 days'`,
+    })
+    .from(reservacion)
+    .innerJoin(libro, eq(reservacion.libroId, libro.id))
+    .where(eq(reservacion.usuarioId, userId))
+    .orderBy(sql`${reservacion.id} DESC`);
+
+  return reservaciones;
+}
+
+export async function getUserFines(userId: string) {
+  const { userId: authUserId } = await auth();
+  if (!authUserId) throw new Error("No autenticado");
+  if (authUserId !== userId) throw new Error("No autorizado");
+
+  const multas = await db
+    .select({
+      id: multa.id,
+      prestamoId: multa.prestamoId,
+      monto: multa.monto,
+      estado: multa.estado,
+      categoriaMulta: multa.categoriaMulta,
+      fechaEmision: sql<string>`CURRENT_DATE`,
+      libroNombre: libro.nombre,
+      libroCodigo: libro.codigo,
+    })
+    .from(multa)
+    .innerJoin(libro, eq(multa.prestamoId, libro.id))
+    .where(eq(multa.usuarioId, userId))
+    .orderBy(sql`${multa.id} DESC`);
+
+  return multas.map((multa) => ({
+    ...multa,
+    libro: {
+      nombre: multa.libroNombre,
+      codigo: multa.libroCodigo,
+    },
+  }));
 }

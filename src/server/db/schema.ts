@@ -156,7 +156,7 @@ export const reservacion = createTable("reservacion", {
   codigoReferencia: text("codigo_referencia"),
   usuarioId: text("usuario_id").references(() => usuario.clerkId),
   libroId: integer("libro_id").references(() => libro.id),
-  estado: estadoPrestamoEnum("estado").notNull().default("activo"),
+  estado: estadoPrestamoEnum("estado").notNull().default("pendiente"),
 });
 
 // Create Zod schemas for reservacion
@@ -165,11 +165,14 @@ export const selectReservacionSchema = createSelectSchema(reservacion);
 
 export const prestamo = createTable("prestamo", {
   id: serial("id").primaryKey(),
-  reservaId: integer("reserva_id").references(() => reservacion.id).notNull(),
+  reservaId: integer("reserva_id")
+    .references(() => reservacion.id)
+    .notNull(),
   fechaPrestamo: date("fecha_prestamo").notNull(),
   fechaVencimiento: date("fecha_vencimiento").notNull(),
   fechaDevolucion: date("fecha_devolucion"),
   personalId: text("personal_id").references(() => usuario.clerkId),
+  libroCopiaId: integer("libro_copia_id").references(() => libroCopia.id),
 });
 
 // Create Zod schemas for prestamo
@@ -210,6 +213,10 @@ export const libroCopiaRelations = relations(libroCopia, ({ one }) => ({
     fields: [libroCopia.libroId],
     references: [libro.id],
   }),
+  prestamo: one(prestamo, {
+    fields: [libroCopia.id],
+    references: [prestamo.libroCopiaId],
+  }),
 }));
 
 export const usuarioRelations = relations(usuario, ({ many }) => ({
@@ -243,6 +250,10 @@ export const prestamoRelations = relations(prestamo, ({ one }) => ({
     references: [usuario.clerkId],
   }),
   multa: one(multa),
+  libroCopia: one(libroCopia, {
+    fields: [prestamo.libroCopiaId],
+    references: [libroCopia.id],
+  }),
 }));
 
 export const multaRelations = relations(multa, ({ one }) => ({

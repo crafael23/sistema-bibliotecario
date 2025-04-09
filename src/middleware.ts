@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { db } from "./server/db";
 
 const isProtectedRoute = createRouteMatcher(["/(.*)"]);
 const isWebhookRoute = createRouteMatcher(["/api/webhooks(.*)"]);
