@@ -7,7 +7,9 @@ import Link from "next/link";
 import ReservationCalendar from "./components/reservation-calendar";
 import { getUnavailableDates } from "./actions";
 
+// Force dynamic rendering to ensure we always get fresh data
 export const dynamic = "force-dynamic";
+export const revalidate = 0; // Disable cache for this page
 
 export default async function ReservationPage({
   params,
@@ -30,6 +32,7 @@ export default async function ReservationPage({
     availableCopies,
     totalCopies,
     unavailableRangesCount: unavailableRanges.length,
+    unavailableRanges,
   });
 
   return (

@@ -1,203 +1,137 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { Button } from "~/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
+  getMovimientosLibro,
+  searchBooks,
+} from "~/app/admin/reportes/actions/index";
+import { ReportLayout } from "../../components/report-layout";
+import { ClientPagination } from "../../components/client-pagination";
+import { ReportFooter } from "../../components/report-footer";
+import { MonthFilter } from "./components/month-filter";
+import { BookSelect } from "./components/book-select";
+import { MovimientosTable } from "./components/movimientos-table";
+import { BookInfo } from "./components/book-info";
+import { type BookSummary, type Movimiento } from "~/app/admin/reportes/types";
+import { Suspense } from "react";
+import { Skeleton } from "~/components/ui/skeleton";
 
-// Datos de prueba para movimientos de libros
-const movimientosLibro = [
-  {
-    fecha: "2023-12-03",
-    tipo: "Reserva",
-    usuario: "luis@mail.com",
-    detalle: "Duración: 7 días",
-  },
-  {
-    fecha: "2023-12-03",
-    tipo: "Préstamo",
-    usuario: "luis@mail.com",
-    detalle: "Responsable: admin@biblioteca.org",
-  },
-  {
-    fecha: "2023-12-17",
-    tipo: "Devolución",
-    usuario: "luis@mail.com",
-    detalle: "Responsable: maria@biblioteca.org",
-  },
-  {
-    fecha: "2024-01-10",
-    tipo: "Reserva",
-    usuario: "ana@estudiante.edu",
-    detalle: "Duración: 5 días",
-  },
-  {
-    fecha: "2024-01-12",
-    tipo: "Préstamo",
-    usuario: "ana@estudiante.edu",
-    detalle: "Responsable: admin@biblioteca.org",
-  },
-  {
-    fecha: "2024-01-15",
-    tipo: "Devolución",
-    usuario: "ana@estudiante.edu",
-    detalle: "Responsable: admin@biblioteca.org",
-  },
-  {
-    fecha: "2024-02-20",
-    tipo: "Reserva",
-    usuario: "carlos@mail.com",
-    detalle: "Duración: 10 días",
-  },
-  {
-    fecha: "2024-02-22",
-    tipo: "Préstamo",
-    usuario: "carlos@mail.com",
-    detalle: "Responsable: pedro@biblioteca.org",
-  },
-  {
-    fecha: "2024-03-01",
-    tipo: "Devolución",
-    usuario: "carlos@mail.com",
-    detalle: "Responsable: maria@biblioteca.org",
-  },
-];
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export default function MovimientosLibroPage() {
+interface SearchParams {
+  page?: string;
+  mes?: string;
+  anio?: string;
+  libroId?: string;
+}
+
+export default async function MovimientosLibroPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  // Parse pagination and filter params
+  const currentPage = parseInt(searchParams.page ?? "1");
+  const pageSize = 10; // Keep page size consistent
+  const month = searchParams.mes ? parseInt(searchParams.mes) : undefined;
+  const year = searchParams.anio ? parseInt(searchParams.anio) : undefined;
+  const libroId = searchParams.libroId ? parseInt(searchParams.libroId) : null;
+
+  // Fetch all books initially
+  const allBooks = await searchBooks("");
+
+  // Fetch data with error handling
+  let bookInfo: BookSummary | null = null;
+  let movimientos: Movimiento[] = [];
+  let totalItems = 0;
+  let error: string | null = null;
+
+  try {
+    if (libroId) {
+      // Find book in the already fetched books
+      bookInfo = allBooks.find((b) => b.id === libroId) ?? null;
+
+      // Only fetch movements if we found a valid book
+      if (bookInfo) {
+        try {
+          const result = await getMovimientosLibro(libroId, {
+            page: currentPage,
+            pageSize,
+            mes: month,
+            anio: year,
+          });
+
+          movimientos = Array.isArray(result.data) ? result.data : [];
+          totalItems = result.totalItems ?? 0;
+        } catch (movimientosError) {
+          console.error("Error fetching movimientos:", movimientosError);
+          error = "Error al cargar los movimientos del libro";
+        }
+      } else {
+        error = "No se encontró información del libro seleccionado";
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    error = "Error al cargar los datos. Por favor, intente nuevamente.";
+    bookInfo = null;
+    movimientos = [];
+    totalItems = 0;
+  }
+
+  // Prepare title and description based on state
+  const title = "Registro de Movimientos de Libros";
+  const cardTitle = bookInfo
+    ? `Movimientos del Libro: "${bookInfo.nombre}" (ID: ${bookInfo.id})`
+    : "Seleccione un libro para ver sus movimientos";
+  const cardDescription =
+    "Trazabilidad completa de ejemplares - Historial de reservas, préstamos y devoluciones";
+
   return (
-    <div className="container py-10">
-      <div className="mb-6 flex items-center">
-        <Button variant="ghost" size="sm" asChild className="mr-4">
-          <Link href="/admin/reportes">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
-          </Link>
-        </Button>
-        <h1 className="text-3xl font-bold">
-          Registro de Movimientos de Libros
-        </h1>
+    <ReportLayout
+      title={title}
+      cardTitle={cardTitle}
+      cardDescription={cardDescription}
+      filterComponent={<MonthFilter currentMonth={month} currentYear={year} />}
+      footerComponent={
+        libroId && bookInfo ? (
+          <ReportFooter
+            itemCount={movimientos.length}
+            totalItems={totalItems}
+            itemLabel="movimientos"
+            additionalInfo={`Libro ID: ${bookInfo.id}`}
+          />
+        ) : null
+      }
+    >
+      {error && (
+        <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-4 text-red-800">
+          {error}
+        </div>
+      )}
+
+      <div className="mb-6">
+        <BookSelect initialBookId={libroId ?? undefined} allBooks={allBooks} />
       </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>
-            Movimientos del Libro: &quot;Cien años de soledad&quot; (ID: 101)
-          </CardTitle>
-          <CardDescription>
-            Trazabilidad completa de ejemplares - Historial de reservas,
-            préstamos y devoluciones
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-6 flex flex-col gap-4 md:flex-row">
-            <div className="w-full md:w-1/3">
-              <Label htmlFor="libro">Buscar otro libro</Label>
-              <div className="mt-1 flex gap-2">
-                <Input id="libro" placeholder="ID o nombre del libro" />
-                <Button>Buscar</Button>
-              </div>
-            </div>
-            <div className="w-full md:w-1/3">
-              <Label htmlFor="periodo">Periodo</Label>
-              <Select defaultValue="2023">
-                <SelectTrigger id="periodo">
-                  <SelectValue placeholder="Seleccionar periodo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="2025">2025</SelectItem>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2023">2023</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <Suspense fallback={<Skeleton className="h-20 w-full" />}>
+        {bookInfo && <BookInfo book={bookInfo} />}
+      </Suspense>
+
+      {bookInfo ? (
+        <>
+          <MovimientosTable movimientos={movimientos} />
+          <div className="mt-6">
+            <ClientPagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              pageSize={pageSize}
+            />
           </div>
-
-          <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4">
-            <div className="flex flex-col justify-between md:flex-row">
-              <div>
-                <h3 className="font-semibold text-amber-800">
-                  Información del libro
-                </h3>
-                <p className="mt-1 text-sm text-amber-700">
-                  Categoría: Literatura | Estado actual: Disponible
-                </p>
-              </div>
-              <div className="mt-2 md:mt-0">
-                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
-                  8 ejemplares disponibles
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Fecha</TableHead>
-                <TableHead>Tipo Movimiento</TableHead>
-                <TableHead>Usuario</TableHead>
-                <TableHead>Detalle</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {movimientosLibro.map((movimiento, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    {new Date(movimiento.fecha).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs font-medium ${
-                        movimiento.tipo === "Reserva"
-                          ? "bg-blue-100 text-blue-800"
-                          : movimiento.tipo === "Préstamo"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-purple-100 text-purple-800"
-                      }`}
-                    >
-                      {movimiento.tipo}
-                    </span>
-                  </TableCell>
-                  <TableCell>{movimiento.usuario}</TableCell>
-                  <TableCell>{movimiento.detalle}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Mostrando {movimientosLibro.length} movimientos • Libro ID: 101
+        </>
+      ) : (
+        <div className="flex h-32 items-center justify-center rounded-md border border-dashed p-8 text-muted-foreground">
+          Seleccione un libro para ver sus movimientos
         </div>
-        <div className="flex gap-2">
-          <Button>Exportar a PDF</Button>
-          <Button>Exportar a Excel</Button>
-        </div>
-      </div>
-    </div>
+      )}
+    </ReportLayout>
   );
 }

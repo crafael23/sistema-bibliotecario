@@ -4,21 +4,31 @@ import { libro, reservacion, usuario, libroCopia, multa } from "./schema";
 import { z } from "zod";
 import { cifraridentidad } from "~/lib/random-utils";
 
-// export async function getBooks() {
-//   const books = await db
-//     .select({
-//       id: libro.groupId,
-//       nombre: libro.nombre,
-//       categoria: libro.categoria,
-//       estado: libro.estado,
-//       cantidad: sql<number>`cast(count(${libro.id}) as integer)`,
-//     })
-//     .from(libro)
-//     .groupBy(libro.groupId, libro.nombre, libro.categoria, libro.estado)
-//     .orderBy(libro.nombre);
-//   return books;
-// }
-//
+export async function getBooks() {
+  const books = await db
+    .select({
+      id: libro.id,
+      nombre: libro.nombre,
+      categoria: libro.categoria,
+      autor: libro.autor,
+      codigo: libro.codigo,
+      estado: libroCopia.estado ?? "disponible",
+      cantidad: sql<number>`cast(count(${libroCopia.id}) as integer)`,
+    })
+    .from(libro)
+    .leftJoin(libroCopia, eq(libro.id, libroCopia.libroId))
+    .groupBy(
+      libro.id,
+      libro.nombre,
+      libro.categoria,
+      libro.autor,
+      libro.codigo,
+      libroCopia.estado,
+    )
+    .orderBy(libro.nombre);
+  return books;
+}
+
 // export async function getHistorialPrestamosUsuario(userId: string, mes: Date) {
 //   const startOfMonth = new Date(mes.getFullYear(), mes.getMonth(), 1);
 //   const endOfMonth = new Date(mes.getFullYear(), mes.getMonth() + 1, 0);

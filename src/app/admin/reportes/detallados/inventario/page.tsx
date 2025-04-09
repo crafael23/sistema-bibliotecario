@@ -1,53 +1,77 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "~/components/ui/card";
-import { getBooks } from "~/server/db/queries";
-import { FilteredTable } from "./librot-table";
+import { getInventarioBooks } from "~/app/admin/reportes/actions/index";
+import { ReportLayout } from "../../components/report-layout";
+import { ClientMonthFilter } from "../../components/client-month-filter";
+import { ClientPagination } from "../../components/client-pagination";
+import { ReportFooter } from "../../components/report-footer";
+import { BookTable } from "./components/book-table";
 
-export default async function ReporteDetalladoInventarioPage() {
-  const inventarioLibros = await getBooks();
+export const dynamic = "force-dynamic";
+
+interface SearchParams {
+  page?: string;
+  mes?: string;
+  anio?: string;
+}
+
+export default async function ReporteDetalladoInventarioPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  // Parse pagination params
+  const currentPage = searchParams.page ? parseInt(searchParams.page) : 1;
+  const pageSize = 10;
+
+  // Get date filter params if available
+  let dateFilter;
+  if (searchParams.mes && searchParams.anio) {
+    const month = parseInt(searchParams.mes);
+    const year = parseInt(searchParams.anio);
+    dateFilter = new Date(year, month - 1, 1);
+  }
+
+  // Fetch data with pagination and filtering
+  const { data: books, totalItems } = await getInventarioBooks({
+    page: currentPage,
+    pageSize,
+    mes: searchParams.mes ? parseInt(searchParams.mes) : undefined,
+    anio: searchParams.anio ? parseInt(searchParams.anio) : undefined,
+  });
+
+  // Format date for display
+  const displayDate = dateFilter
+    ? new Date(dateFilter).toLocaleDateString("es-ES", {
+        month: "long",
+        year: "numeric",
+      })
+    : new Date().toLocaleDateString("es-ES", {
+        month: "long",
+        year: "numeric",
+      });
 
   return (
-    <div className="container py-10">
-      <div className="mb-6 flex items-center">
-        <Button variant="ghost" size="sm" asChild className="mr-4">
-          <Link href="/admin/reportes">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
-          </Link>
-        </Button>
-        <h1 className="text-3xl font-bold">Inventario Completo de Libros</h1>
+    <ReportLayout
+      title="Inventario Completo de Libros"
+      cardTitle={`Inventario - ${displayDate}`}
+      cardDescription="Control físico y gestión de stock de libros en el sistema"
+      filterComponent={<ClientMonthFilter currentDate={dateFilter} />}
+      footerComponent={
+        <ReportFooter
+          itemCount={books.length}
+          totalItems={totalItems}
+          itemLabel="libros"
+          additionalInfo={`Actualizado: ${new Date().toLocaleDateString()}`}
+        />
+      }
+    >
+      <BookTable books={books} />
+      <div className="mt-6">
+        <ClientPagination
+          currentPage={currentPage}
+          totalItems={totalItems}
+          pageSize={pageSize}
+        />
       </div>
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>
-            Inventario - {new Date().toLocaleString("es-ES", { month: "long" })}{" "}
-            {new Date().getFullYear()}
-          </CardTitle>
-
-          <CardDescription>
-            Control físico y gestión de stock de libros en el sistema
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FilteredTable books={inventarioLibros} />
-        </CardContent>
-      </Card>
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Mostrando {inventarioLibros.length} libros • Actualizado: 20 de marzo
-          de 2025
-        </div>
-        <Button>Exportar a Excel</Button>
-        <Button>Exportar a PDF</Button>
-      </div>
-    </div>
+    </ReportLayout>
   );
 }

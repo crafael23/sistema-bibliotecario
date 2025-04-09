@@ -18,6 +18,7 @@ interface PageHeaderProps {
   onSearch?: (query: string) => void;
   backUrl?: string;
   showDateTime?: boolean;
+  action?: React.ReactNode;
 }
 
 export function PageHeader({
@@ -29,17 +30,31 @@ export function PageHeader({
   onSearch,
   backUrl,
   showDateTime = false,
+  action,
 }: PageHeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
   const [currentDate, setCurrentDate] = useState("");
   const [currentTime, setCurrentTime] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
 
   // Si no se proporciona una URL de retorno específica, determinar automáticamente
   const shouldShowBackButton = pathname !== "/admin";
   const effectiveBackUrl =
     backUrl ??
     (pathname.includes("/admin/reportes/") ? "/admin/reportes" : "/admin");
+
+  useEffect(() => {
+    // Handle window for client-side only
+    setIsMobile(window.innerWidth < 768);
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (showDateTime) {
@@ -96,18 +111,26 @@ export function PageHeader({
           </h1>
         </div>
 
-        {showDateTime && (
-          <div className="ml-auto flex items-center gap-2 rounded-md bg-white/90 p-2 text-sm shadow">
-            <Calendar className="h-4 w-4" />
-            <span>{currentDate}</span>
-            <span>|</span>
-            <span>{currentTime}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-4">
+          {action && <div className="hidden md:block">{action}</div>}
+
+          {showDateTime && (
+            <div className="ml-auto flex items-center gap-2 rounded-md bg-white/90 p-2 text-sm shadow">
+              <Calendar className="h-4 w-4" />
+              <span>{currentDate}</span>
+              <span>|</span>
+              <span>{currentTime}</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {(showSearch || showAddButton) && (
+      {(showSearch || showAddButton || (action && isMobile)) && (
         <div className="flex flex-wrap items-center justify-end gap-4 px-4 pb-4 md:px-6 md:pb-6">
+          {action && (
+            <div className="flex w-full justify-end md:hidden">{action}</div>
+          )}
+
           {showSearch && (
             <div className="relative max-w-md flex-grow">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

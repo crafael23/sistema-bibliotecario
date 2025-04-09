@@ -18,29 +18,40 @@ import {
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 
-// Datos de prueba para usuarios sin multas
-const usuariosSinMultas = [
-  {
-    id: "USR-5501",
-    email: "sofia@tech.com",
-    reservas: 34,
-    ultimaActividad: "2025-03-10",
-  },
-  {
-    id: "USR-6723",
-    email: "raul@invest.com",
-    reservas: 29,
-    ultimaActividad: "2025-02-28",
-  },
-  {
-    id: "USR-8912",
-    email: "manuel@correo.com",
-    reservas: 22,
-    ultimaActividad: "2025-03-15",
-  },
-];
+// Aquí se implementará la función getUsuariosSinMultas en producción
+async function getTopUsuariosSinMultas() {
+  // En producción, esta función haría una llamada a la base de datos:
+  // return await db.query.usuario.findMany({...});
 
-export default function UsuariosSinMultasPage() {
+  // Por ahora, retornamos datos de prueba
+  return [
+    {
+      id: "USR-5501",
+      email: "sofia@tech.com",
+      nombre: "Sofia García",
+      reservas: 34,
+      ultimaActividad: "2025-03-10",
+    },
+    {
+      id: "USR-6723",
+      email: "raul@invest.com",
+      nombre: "Raul Mendez",
+      reservas: 29,
+      ultimaActividad: "2025-02-28",
+    },
+    {
+      id: "USR-8912",
+      email: "manuel@correo.com",
+      nombre: "Manuel Sánchez",
+      reservas: 22,
+      ultimaActividad: "2025-03-15",
+    },
+  ];
+}
+
+export default async function UsuariosSinMultasPage() {
+  const usuarios = await getTopUsuariosSinMultas();
+
   return (
     <div className="container py-10">
       <div className="mb-6 flex items-center">
@@ -65,6 +76,7 @@ export default function UsuariosSinMultasPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>ID Usuario</TableHead>
+                <TableHead>Nombre</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead className="text-center">Reservas</TableHead>
                 <TableHead>Última Actividad</TableHead>
@@ -72,9 +84,10 @@ export default function UsuariosSinMultasPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {usuariosSinMultas.map((usuario) => (
+              {usuarios.map((usuario) => (
                 <TableRow key={usuario.id}>
                   <TableCell className="font-medium">{usuario.id}</TableCell>
+                  <TableCell>{usuario.nombre}</TableCell>
                   <TableCell>{usuario.email}</TableCell>
                   <TableCell className="text-center">
                     <Badge variant="outline" className="bg-green-50">
@@ -110,7 +123,7 @@ export default function UsuariosSinMultasPage() {
 
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
-          Datos actualizados al 20 de marzo de 2025
+          Datos actualizados al {new Date().toLocaleDateString("es-ES")}
         </div>
         <div className="flex gap-2">
           <Button variant="outline">Enviar reconocimiento</Button>

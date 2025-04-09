@@ -3,7 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { reservacion, prestamo, libroCopia, libro } from "~/server/db/schema";
-import { eq, and, or, gte } from "drizzle-orm";
+import { eq, and, or, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { type z } from "zod";
 import {
@@ -41,22 +41,25 @@ export async function getUnavailableDates(bookId: number) {
       };
     }
 
-    // Get all active reservations for this book
+    // Get all active and pending reservations for this book
+    // Include both "activo" and "pendiente" reservations as they both block dates
     const reservations = await db
       .select({
         startDate: prestamo.fechaPrestamo,
         endDate: prestamo.fechaVencimiento,
         usuarioId: reservacion.usuarioId,
+        estado: reservacion.estado,
       })
       .from(reservacion)
       .innerJoin(prestamo, eq(prestamo.reservaId, reservacion.id))
       .where(
         and(
           eq(reservacion.libroId, bookId),
-          eq(reservacion.estado, "activo"),
           gte(prestamo.fechaVencimiento, new Date().toISOString()),
         ),
       );
+
+    console.log("Found reservations:", reservations);
 
     // Group reservations by date to count how many are active on each day
     const reservationsByDate = new Map<string, number>();
@@ -92,6 +95,9 @@ export async function getUnavailableDates(bookId: number) {
         currentDate = nextDate;
       }
     });
+
+    console.log("Reservations by date:", [...reservationsByDate.entries()]);
+    console.log("User reservations:", [...userReservations]);
 
     // Find dates where all copies would be reserved OR where the user already has a reservation
     const unavailableDates: Date[] = [];
@@ -137,6 +143,8 @@ export async function getUnavailableDates(bookId: number) {
       });
     }
 
+    console.log("Calculated unavailable ranges:", unavailableRanges);
+
     return {
       success: true,
       unavailableRanges,
@@ -174,6 +182,91 @@ export async function confirmReservation(formData: {
     // Format dates for database queries
     const startDateStr = format(formData.startDate, "yyyy-MM-dd");
     const endDateStr = format(formData.endDate, "yyyy-MM-dd");
+
+    // Check if the user already has a reservation for this book on these dates
+    const existingReservations = await db
+      .select()
+      .from(reservacion)
+      .innerJoin(prestamo, eq(prestamo.reservaId, reservacion.id))
+      .where(
+        and(
+          eq(reservacion.usuarioId, userId),
+          eq(reservacion.libroId, formData.bookId),
+          or(
+            eq(reservacion.estado, "activo"),
+            eq(reservacion.estado, "pendiente"),
+          ),
+          or(
+            // Check for overlapping date ranges
+            and(
+              lte(prestamo.fechaPrestamo, startDateStr),
+              gte(prestamo.fechaVencimiento, startDateStr),
+            ),
+            and(
+              lte(prestamo.fechaPrestamo, endDateStr),
+              gte(prestamo.fechaVencimiento, endDateStr),
+            ),
+            and(
+              gte(prestamo.fechaPrestamo, startDateStr),
+              lte(prestamo.fechaVencimiento, endDateStr),
+            ),
+          ),
+        ),
+      );
+
+    if (existingReservations.length > 0) {
+      return {
+        success: false,
+        error:
+          "Ya tienes una reserva para este libro en las fechas seleccionadas",
+      };
+    }
+
+    // Check if there are enough copies available for these dates
+    const bookCopies = await db
+      .select()
+      .from(libroCopia)
+      .where(eq(libroCopia.libroId, formData.bookId));
+
+    const totalCopies = bookCopies.length;
+
+    // Get all existing reservations for this book on the selected dates
+    const overlappingReservations = await db
+      .select()
+      .from(reservacion)
+      .innerJoin(prestamo, eq(prestamo.reservaId, reservacion.id))
+      .where(
+        and(
+          eq(reservacion.libroId, formData.bookId),
+          or(
+            eq(reservacion.estado, "activo"),
+            eq(reservacion.estado, "pendiente"),
+          ),
+          or(
+            // Check for overlapping date ranges
+            and(
+              lte(prestamo.fechaPrestamo, startDateStr),
+              gte(prestamo.fechaVencimiento, startDateStr),
+            ),
+            and(
+              lte(prestamo.fechaPrestamo, endDateStr),
+              gte(prestamo.fechaVencimiento, endDateStr),
+            ),
+            and(
+              gte(prestamo.fechaPrestamo, startDateStr),
+              lte(prestamo.fechaVencimiento, endDateStr),
+            ),
+          ),
+        ),
+      );
+
+    if (overlappingReservations.length >= totalCopies) {
+      return {
+        success: false,
+        error:
+          "No hay suficientes copias disponibles para las fechas seleccionadas",
+      };
+    }
 
     // Start a transaction
     const result = await db.transaction(async (tx) => {

@@ -91,7 +91,7 @@ export default function ReservationCalendar({
     }
 
     // Check if the date falls within any unavailable range
-    // These ranges represent dates where all copies would be reserved
+    // These ranges represent dates where all copies would be reserved or user already has a reservation
     return unavailableRanges.some(
       (range) =>
         (isAfter(date, range.from) || isSameDay(date, range.from)) &&
@@ -168,6 +168,9 @@ export default function ReservationCalendar({
         // Reset all component state
         setDate(undefined);
         setShowConfirmDialog(false);
+
+        // Force a refresh of the page to update the unavailable dates
+        window.location.reload();
       } else {
         // Show error toast
         toast({
