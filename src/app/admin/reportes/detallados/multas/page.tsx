@@ -63,7 +63,7 @@ export default async function MultasPage({
           itemCount={multas.length}
           totalItems={totalItems}
           itemLabel="multas pendientes"
-          additionalInfo={`Total: $${totalMonto.toFixed(2)}`}
+          additionalInfo={`Total: Lps. ${totalMonto.toFixed(2)}`}
         />
       }
     >

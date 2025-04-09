@@ -37,7 +37,7 @@ export function MultasTable({ multas }: MultasTableProps) {
               <TableCell>{multa.telefono}</TableCell>
               <TableCell>{multa.libro}</TableCell>
               <TableCell className="text-right">
-                ${multa.monto.toFixed(2)}
+                Lps. {multa.monto.toFixed(2)}
               </TableCell>
               <TableCell className="text-center">
                 <span
