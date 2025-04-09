@@ -213,7 +213,7 @@ const COLORS = [
 
 // Función para formatear valores monetarios
 const formatCurrency = (value: number) => {
-  return `$${value.toFixed(2)}`;
+  return `Lps. ${value.toFixed(2)}`;
 };
 
 // Componente personalizado para el tooltip del gráfico de pastel
