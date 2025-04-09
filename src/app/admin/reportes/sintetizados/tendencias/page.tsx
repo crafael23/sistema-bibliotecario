@@ -1,5 +1,3 @@
-"use client";
-
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
@@ -10,87 +8,75 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "~/components/ui/chart";
-import { useEffect, useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
+import { getTendenciasData } from "../actions";
+import { ClientTendenciasChart } from "./components/client-tendencias-chart";
 
-// Datos de prueba para tendencias de préstamos
-// En producción, estos datos vendrían de una API o del servidor
-const tendenciasPrestamos = [
-  { mes: "Enero", "2024": 420, "2023": 380, crecimiento: 10.5 },
-  { mes: "Febrero", "2024": 450, "2023": 400, crecimiento: 12.5 },
-  { mes: "Marzo", "2024": 480, "2023": 420, crecimiento: 14.3 },
-  { mes: "Abril", "2024": 520, "2023": 450, crecimiento: 15.6 },
-  { mes: "Mayo", "2024": 550, "2023": 470, crecimiento: 17.0 },
-  { mes: "Junio", "2024": 580, "2023": 500, crecimiento: 16.0 },
-  { mes: "Julio", "2024": 600, "2023": 510, crecimiento: 17.6 },
-  { mes: "Agosto", "2024": 590, "2023": 520, crecimiento: 13.5 },
-  { mes: "Septiembre", "2024": 610, "2023": 530, crecimiento: 15.1 },
-  { mes: "Octubre", "2024": 630, "2023": 540, crecimiento: 16.7 },
-  { mes: "Noviembre", "2024": 640, "2023": 545, crecimiento: 17.4 },
-  { mes: "Diciembre", "2024": 615, "2023": 550, crecimiento: 11.8 },
-];
+export const dynamic = "force-dynamic";
 
-export default function TendenciasPage() {
-  const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState<string>(
-    currentYear.toString(),
-  );
-  const [compareYear, setCompareYear] = useState<string>(
-    (currentYear - 1).toString(),
-  );
-  const [chartData, setChartData] = useState(tendenciasPrestamos);
+interface SearchParams {
+  primerMes?: string;
+  primerAnio?: string;
+  segundoMes?: string;
+  segundoAnio?: string;
+}
 
-  // Years for the selectors (current year and 5 years back)
-  const years = Array.from({ length: 6 }, (_, i) => {
-    const year = currentYear - i;
-    return { value: year.toString(), label: year.toString() };
+interface TendenciaDataPoint {
+  dia: number;
+  primerPeriodo: number;
+  segundoPeriodo: number;
+  crecimiento: number;
+}
+
+export default async function TendenciasPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  // Get current date
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-based
+
+  // Parse search params or use current date as default
+  const primerMes = searchParams.primerMes
+    ? parseInt(searchParams.primerMes)
+    : currentMonth;
+  const primerAnio = searchParams.primerAnio
+    ? parseInt(searchParams.primerAnio)
+    : currentYear;
+  const segundoMes = searchParams.segundoMes
+    ? parseInt(searchParams.segundoMes)
+    : currentMonth === 1
+      ? 12
+      : currentMonth - 1;
+  const segundoAnio = searchParams.segundoAnio
+    ? parseInt(searchParams.segundoAnio)
+    : currentMonth === 1
+      ? currentYear - 1
+      : currentYear;
+
+  // Fetch data for the selected periods
+  const result = await getTendenciasData({
+    primerMes,
+    primerAnio,
+    segundoMes,
+    segundoAnio,
   });
 
-  // In a production app, this would fetch data from the server
-  // using the selected years
-  const fetchTendenciasData = () => {
-    // Replace with real API call, e.g.:
-    // const response = await fetch(`/api/reportes/tendencias?year=${selectedYear}&compareYear=${compareYear}`);
-    // const data = await response.json();
-    // setChartData(data);
+  const data: TendenciaDataPoint[] = result.data || [];
+  const primerPeriodoTotal = result.primerPeriodoTotal || 0;
+  const segundoPeriodoTotal = result.segundoPeriodoTotal || 0;
+  const crecimientoPromedio = result.crecimientoPromedio || 0;
 
-    // For now, just update the display years in the demo data
-    setChartData(
-      tendenciasPrestamos.map((item) => ({
-        mes: item.mes,
-        [selectedYear]: item[selectedYear] || item["2024"], // Fallback to 2024 data
-        [compareYear]: item[compareYear] || item["2023"], // Fallback to 2023 data
-        crecimiento: item.crecimiento,
-      })),
-    );
+  // Format month names for display
+  const formatMonth = (month: number) => {
+    return new Date(2000, month - 1, 1).toLocaleDateString("es-ES", {
+      month: "long",
+    });
   };
 
-  // Update data when years change
-  useEffect(() => {
-    fetchTendenciasData();
-  }, [selectedYear, compareYear]);
-
-  // Prevent selecting the same year for both selectors
-  const handleMainYearChange = (year: string) => {
-    if (year === compareYear) {
-      // If selected year is the same as compare year, adjust compare year
-      const newCompareYear = parseInt(year) - 1;
-      setCompareYear(newCompareYear.toString());
-    }
-    setSelectedYear(year);
-  };
+  const primerPeriodoLabel = `${formatMonth(primerMes)} ${primerAnio}`;
+  const segundoPeriodoLabel = `${formatMonth(segundoMes)} ${segundoAnio}`;
 
   return (
     <div className="container py-10">
@@ -108,108 +94,78 @@ export default function TendenciasPage() {
         <CardHeader>
           <div className="flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
             <div>
-              <CardTitle>Comparativo Anual de Préstamos</CardTitle>
+              <CardTitle>Comparativo de Préstamos</CardTitle>
               <CardDescription>
-                Análisis de tendencias {compareYear}-{selectedYear} con
-                porcentaje de crecimiento
+                Análisis de tendencias {segundoPeriodoLabel} vs{" "}
+                {primerPeriodoLabel} con porcentaje de crecimiento
               </CardDescription>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
-                  Año Principal
-                </span>
-                <Select
-                  value={selectedYear}
-                  onValueChange={handleMainYearChange}
-                >
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue placeholder="Año" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((year) => (
-                      <SelectItem key={year.value} value={year.value}>
-                        {year.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
-                  Comparar con
-                </span>
-                <Select value={compareYear} onValueChange={setCompareYear}>
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue placeholder="Año" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years
-                      .filter((year) => year.value !== selectedYear)
-                      .map((year) => (
-                        <SelectItem key={year.value} value={year.value}>
-                          {year.label}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="w-[1000]">
-            <ChartContainer
-              config={{
-                [selectedYear]: {
-                  label: selectedYear,
-                  color: "hsl(var(--chart-1))",
-                },
-                [compareYear]: {
-                  label: compareYear,
-                  color: "hsl(var(--chart-2))",
-                },
-              }}
-            >
-              <LineChart
-                data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="mes" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Line
-                  type="monotone"
-                  dataKey={selectedYear}
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey={compareYear}
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ChartContainer>
-          </div>
+          <ClientTendenciasChart
+            data={data}
+            primerPeriodoLabel={primerPeriodoLabel}
+            segundoPeriodoLabel={segundoPeriodoLabel}
+            primerMes={primerMes}
+            primerAnio={primerAnio}
+            segundoMes={segundoMes}
+            segundoAnio={segundoAnio}
+          />
 
           <div className="mt-8">
-            <h3 className="mb-4 text-lg font-semibold">Datos de Crecimiento</h3>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {chartData.map((item) => (
+            <h3 className="mb-4 text-lg font-semibold">
+              Resumen de Crecimiento
+            </h3>
+            <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+              <div className="rounded-lg border bg-card p-4 shadow-sm">
+                <div className="text-sm font-medium text-muted-foreground">
+                  Total Préstamos {primerPeriodoLabel}
+                </div>
+                <div className="mt-1 text-2xl font-bold">
+                  {primerPeriodoTotal}
+                </div>
+              </div>
+              <div className="rounded-lg border bg-card p-4 shadow-sm">
+                <div className="text-sm font-medium text-muted-foreground">
+                  Total Préstamos {segundoPeriodoLabel}
+                </div>
+                <div className="mt-1 text-2xl font-bold">
+                  {segundoPeriodoTotal}
+                </div>
+              </div>
+              <div className="rounded-lg border bg-card p-4 shadow-sm">
+                <div className="text-sm font-medium text-muted-foreground">
+                  Crecimiento Promedio
+                </div>
                 <div
-                  key={item.mes}
+                  className={`mt-1 text-2xl font-bold ${crecimientoPromedio >= 0 ? "text-green-600" : "text-red-600"}`}
+                >
+                  {crecimientoPromedio >= 0 ? "+" : ""}
+                  {crecimientoPromedio.toFixed(1)}%
+                </div>
+              </div>
+            </div>
+
+            <h3 className="mb-4 text-lg font-semibold">Datos Diarios</h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {data.map((item) => (
+                <div
+                  key={item.dia}
                   className="flex justify-between rounded-md border p-3"
                 >
-                  <span className="font-medium">{item.mes}</span>
+                  <span className="font-medium">Día {item.dia}</span>
                   <span
-                    className={`font-semibold ${item.crecimiento > 15 ? "text-green-600" : "text-blue-600"}`}
+                    className={`font-semibold ${
+                      item.crecimiento > 0
+                        ? "text-green-600"
+                        : item.crecimiento < 0
+                          ? "text-red-600"
+                          : "text-blue-600"
+                    }`}
                   >
-                    +{item.crecimiento}%
+                    {item.crecimiento > 0 ? "+" : ""}
+                    {item.crecimiento.toFixed(1)}%
                   </span>
                 </div>
               ))}
