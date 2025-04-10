@@ -507,7 +507,7 @@ export default function RendimientoDevoluciones() {
     <div className="container py-10">
       <div className="mb-6 flex items-center">
         <Button variant="ghost" size="sm" asChild className="mr-4">
-          <Link href="/admin/reportes">
+          <Link href="admin/reportes">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver
           </Link>
@@ -639,74 +639,6 @@ export default function RendimientoDevoluciones() {
               ))}
             </TableBody>
           </Table>
-
-          <div className="mt-8 rounded-md border border-green-200 bg-green-50 p-4">
-            <h3 className="mb-2 text-lg font-semibold text-green-800">
-              Análisis de rendimiento
-            </h3>
-            <p className="mb-3 text-green-700">
-              {mesSeleccionado === "3" ? (
-                <>
-                  En marzo 2025, se observa un incremento general en la
-                  eficiencia de devoluciones. Pedro Sánchez y Ana Torres
-                  destacan con eficiencias superiores al 95%, manejando
-                  volúmenes significativos de préstamos.
-                </>
-              ) : mesSeleccionado === "11" ? (
-                <>
-                  Noviembre 2025 muestra los mejores indicadores de eficiencia
-                  del año, con Ana Torres alcanzando un 96.7% a pesar del alto
-                  volumen de préstamos (123). Todo el personal supera el 90% de
-                  eficiencia.
-                </>
-              ) : mesSeleccionado === "7" ? (
-                <>
-                  Julio 2025 presenta una ligera disminución en la eficiencia
-                  general, posiblemente debido al período vacacional y la
-                  reducción de personal disponible. Sin embargo, los niveles se
-                  mantienen por encima del 89%.
-                </>
-              ) : (
-                <>
-                  El análisis del mes muestra un rendimiento consistente del
-                  personal bibliotecario. Los bibliotecarios con mayor volumen
-                  de préstamos tienden a mantener mejores porcentajes de
-                  eficiencia, lo que sugiere una correlación positiva entre
-                  experiencia y rendimiento.
-                </>
-              )}
-            </p>
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <div className="flex-1 rounded-md border border-green-100 bg-white p-3">
-                <h4 className="mb-1 font-semibold text-green-800">
-                  Mejor rendimiento
-                </h4>
-                <p className="text-sm text-green-700">
-                  {datosDelMes[0].responsable} - {datosDelMes[0].eficiencia}% de
-                  eficiencia
-                </p>
-              </div>
-              <div className="flex-1 rounded-md border border-green-100 bg-white p-3">
-                <h4 className="mb-1 font-semibold text-green-800">
-                  Mayor volumen
-                </h4>
-                <p className="text-sm text-green-700">
-                  {
-                    datosDelMes.reduce((prev, current) =>
-                      prev.prestamos > current.prestamos ? prev : current,
-                    ).responsable
-                  }{" "}
-                  -{" "}
-                  {
-                    datosDelMes.reduce((prev, current) =>
-                      prev.prestamos > current.prestamos ? prev : current,
-                    ).prestamos
-                  }{" "}
-                  préstamos
-                </p>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
 

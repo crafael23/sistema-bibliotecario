@@ -462,44 +462,6 @@ export default function CategoriasPage() {
               </div>
             </div>
           </div>
-
-          <div className="mt-8 rounded-md border border-blue-200 bg-blue-50 p-4">
-            <h3 className="mb-2 text-lg font-semibold text-blue-800">
-              Análisis del mes
-            </h3>
-            <p className="text-blue-700">
-              {mesSeleccionado === "3" ? (
-                <>
-                  En marzo 2025, se observa un incremento significativo en los
-                  préstamos de libros de Tecnología durante la mañana, mientras
-                  que Literatura mantiene su popularidad en horario de tarde.
-                  Las categorías con menor demanda son Filosofía y Arte,
-                  especialmente en horario nocturno.
-                </>
-              ) : mesSeleccionado === "11" ? (
-                <>
-                  Noviembre 2025 muestra el pico más alto de préstamos en todas
-                  las categorías, posiblemente relacionado con el período de
-                  exámenes finales. Tecnología alcanza su máximo histórico con
-                  300 préstamos totales.
-                </>
-              ) : mesSeleccionado === "7" ? (
-                <>
-                  Julio 2025 presenta la menor actividad del año, coincidiendo
-                  con el período vacacional. Se recomienda programar actividades
-                  de mantenimiento y actualización del catálogo durante este
-                  mes.
-                </>
-              ) : (
-                <>
-                  El análisis del mes muestra patrones de préstamo consistentes
-                  con la tendencia anual. Las categorías de Tecnología y
-                  Literatura continúan siendo las más solicitadas, mientras que
-                  el horario de tarde mantiene la mayor afluencia de usuarios.
-                </>
-              )}
-            </p>
-          </div>
         </CardContent>
       </Card>
 

@@ -106,18 +106,6 @@ export default async function UsuariosSinMultasPage() {
               ))}
             </TableBody>
           </Table>
-
-          <div className="mt-6 rounded-md border border-green-200 bg-green-50 p-4">
-            <h3 className="mb-2 text-lg font-semibold text-green-800">
-              Recomendación
-            </h3>
-            <p className="text-green-700">
-              Estos usuarios demuestran un excelente comportamiento en el uso de
-              la biblioteca. Considere implementar un programa de recompensas o
-              beneficios especiales para incentivar este tipo de comportamiento
-              en más usuarios.
-            </p>
-          </div>
         </CardContent>
       </Card>
 

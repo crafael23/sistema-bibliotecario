@@ -366,40 +366,6 @@ export default function DistribucionMultas() {
             <h3 className="mb-2 text-lg font-semibold text-blue-800">
               Resumen de multas - {tituloMes}
             </h3>
-            <p className="mb-3 text-blue-700">
-              {mesSeleccionado === "3" ? (
-                <>
-                  En marzo 2025, las multas se concentraron principalmente en
-                  libros de Ciencia y Literatura, representando el{" "}
-                  {(((980.75 + 890.5) / 4318.0) * 100).toFixed(1)}% del total.
-                  Los libros de Tecnología presentaron el monto promedio más
-                  alto por multa con ${20.3}.
-                </>
-              ) : mesSeleccionado === "7" ? (
-                <>
-                  Julio 2025 muestra una disminución del{" "}
-                  {(((3822.75 - 4318.0) / 4318.0) * 100).toFixed(1)}% en el
-                  total de multas respecto a marzo, posiblemente debido al
-                  período vacacional y menor actividad en la biblioteca.
-                </>
-              ) : mesSeleccionado === "12" ? (
-                <>
-                  Diciembre 2025 presenta el mayor volumen de multas del año con
-                  un total de {formatCurrency(4372.5)}, un incremento del{" "}
-                  {(((4372.5 - 3822.75) / 3822.75) * 100).toFixed(1)}% respecto
-                  a julio. Este aumento podría estar relacionado con el cierre
-                  del período académico.
-                </>
-              ) : (
-                <>
-                  Durante {tituloMes}, las categorías de Ciencia y Literatura
-                  continúan siendo las que generan mayor cantidad de multas,
-                  mientras que Filosofía y Arte presentan los montos más bajos.
-                  La categoría de Tecnología mantiene el monto promedio más alto
-                  por multa.
-                </>
-              )}
-            </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="rounded-md border border-blue-100 bg-white p-3">
                 <h4 className="mb-1 font-semibold text-blue-800">
