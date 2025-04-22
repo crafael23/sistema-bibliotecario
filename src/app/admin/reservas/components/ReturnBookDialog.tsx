@@ -78,7 +78,7 @@ export function ReturnBookDialog({
         if (result.success) {
           let message = "Libro recibido exitosamente";
           if (isReservationLate) {
-            message += `. Se ha generado una multa de $${fineAmount.toFixed(2)} por ${daysLate} días de retraso.`;
+            message += `. Se ha generado una multa de Lps.${fineAmount.toFixed(2)} por ${daysLate} días de retraso.`;
           }
           onComplete(true, message);
         } else {
@@ -162,7 +162,7 @@ export function ReturnBookDialog({
               </AlertTitle>
               <AlertDescription className="text-yellow-700">
                 Este libro tiene un retraso de {daysLate} días. Se generará una
-                multa de ${fineAmount.toFixed(2)}.
+                multa de Lps.{fineAmount.toFixed(2)}.
               </AlertDescription>
             </Alert>
           )}

@@ -10,6 +10,7 @@ import { ProfileHeader } from "./components/ProfileHeader";
 import { ProfileInfoCard } from "./components/ProfileInfoCard";
 import { ProfileSkeleton } from "./components/ProfileSkeleton";
 import { UserFines, UserReservations } from "./components/user-data";
+import { SignOutBtn } from "./components/SignOutBtn";
 
 async function ProfileContent() {
   // Get the authenticated user from Clerk
@@ -47,6 +48,9 @@ async function ProfileContent() {
   return (
     <div className="container mx-auto space-y-6 py-6">
       <ProfileHeader />
+      <div className="flex justify-end">
+        <SignOutBtn />
+      </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <ProfileInfoCard user={user} />
         <div className="col-span-1 md:col-span-2">
