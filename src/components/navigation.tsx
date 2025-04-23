@@ -14,7 +14,7 @@ export default function Navigation() {
         <div className="flex items-center justify-between py-4">
           <div className="flex items-center gap-2 font-semibold">
             <Library className="h-6 w-6" />
-            <span>Sistema Bibliotecario hola</span>
+            <span>Sistema Bibliotecario </span>
           </div>
         </div>
       </div>
